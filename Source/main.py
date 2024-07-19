@@ -153,7 +153,7 @@ LIGHT_BLUE = (173, 216, 230)
 LIGHT_GREEN = (144, 238, 144)
 
 # Define level and input file
-input_file = 'input1_level2.txt'  # Change the input file name here
+input_file = 'input1_level1.txt'  # Change the input file name here
 level = get_level_from_filename(input_file)
 
 # Read input file based on level
@@ -188,8 +188,29 @@ offset_y = (screen_size[1] - n * cell_size) // 2
 # Set font for drawing text
 font = pygame.font.SysFont('Arial', 20)
 
+# Draw the map function for level 1
+def draw_map_level1(screen, city_map):
+    for row in range(len(city_map)):
+        for col in range(len(city_map[0])):
+            color = WHITE
+            if city_map[row][col] == -1:
+                color = DARK_BLUE
+            elif city_map[row][col] == 'S':
+                color = LIGHT_GREEN
+            elif city_map[row][col] == 'G':
+                color = (255, 182, 193)  # light pink
+
+            pygame.draw.rect(screen, color, (offset_x + col * cell_size, offset_y + row * cell_size, cell_size, cell_size))
+            pygame.draw.rect(screen, BLACK, (offset_x + col * cell_size, offset_y + row * cell_size, cell_size, cell_size), 1)
+
+            # Draw text for special positions (S and G)
+            if city_map[row][col] == 'S' or city_map[row][col] == 'G':
+                text_surface = font.render(city_map[row][col], True, BLACK)
+                text_rect = text_surface.get_rect(center=(offset_x + col * cell_size + cell_size // 2, offset_y + row * cell_size + cell_size // 2))
+                screen.blit(text_surface, text_rect)
+
 # Draw the map function
-def draw_map(screen, city_map, current_position=None, elapsed_time=None):
+def draw_map_level2(screen, city_map, elapsed_time=None):
     for row in range(len(city_map)):
         for col in range(len(city_map[0])):
             color = WHITE
@@ -213,13 +234,9 @@ def draw_map(screen, city_map, current_position=None, elapsed_time=None):
                 text_rect = text_surface.get_rect(center=(offset_x + col*cell_size + cell_size // 2, offset_y + row*cell_size + cell_size // 2))
                 screen.blit(text_surface, text_rect)
 
-            # Draw text for toll booths and gas stations
+            # Draw text for toll booths
             elif isinstance(city_map[row][col], int) and city_map[row][col] > 0:
                 text_surface = font.render(str(city_map[row][col]), True, BLACK)
-                text_rect = text_surface.get_rect(center=(offset_x + col*cell_size + cell_size // 2, offset_y + row*cell_size + cell_size // 2))
-                screen.blit(text_surface, text_rect)
-            elif isinstance(city_map[row][col], str) and city_map[row][col].startswith('F'):
-                text_surface = font.render(city_map[row][col], True, BLACK)
                 text_rect = text_surface.get_rect(center=(offset_x + col*cell_size + cell_size // 2, offset_y + row*cell_size + cell_size // 2))
                 screen.blit(text_surface, text_rect)
     # Display elapsed time
@@ -227,13 +244,13 @@ def draw_map(screen, city_map, current_position=None, elapsed_time=None):
         time_text = font.render(f"Elapsed Time: {elapsed_time} seconds", True, BLACK)
         screen.blit(time_text, (20, 20))
 
+    
+# Draw the path function
+def draw_path(screen, segments, color, current_position):
     # Highlight current position
     if current_position:
         pygame.draw.rect(screen, YELLOW, (offset_x + current_position[1] * cell_size, offset_y + current_position[0] * cell_size, cell_size, cell_size), 3)
-
-
-# Draw the path function
-def draw_path(screen, segments, color):
+        
     if not segments:
         return
 
@@ -257,16 +274,20 @@ while running:
             running = False
 
     screen.fill(WHITE)
-    draw_map(screen, city_map, current_position, elapsed_time)
-
+        
     if level == 1:
-        path = uniform_cost_search(city_map, start_pos, goal_pos)
+        draw_map_level1(screen, city_map)
+         # Implement pathfinding for Level 1
+         # test gui
+        path = uniform_cost_search(city_map, current_position, goal_pos)
     elif level == 2:
+        draw_map_level2(screen, city_map, elapsed_time)
         # Implement pathfinding for Level 2
+        # test gui
         path = uniform_cost_search(city_map, current_position, goal_pos)
     elif level == 3:
         # Implement pathfinding for Level 3 with fuel and gas stations
-        pass  # Placeholder for Level 3 pathfinding
+        pass  
 
     if path:
         if current_position == goal_pos:
@@ -287,13 +308,13 @@ while running:
         current_position = next_position
 
     # Draw path segments
-    draw_path(screen, segments, RED)
+    draw_path(screen, segments, RED, current_position)
 
     pygame.display.flip()
 
 # After the main loop ends
 if current_position == goal_pos:
-    print(f"Reached the goal in {elapsed_time} seconds.")
+    print(f"Reached the goal in {elapsed_time} minutes.")
 else:
     print("Path not found.")
 
