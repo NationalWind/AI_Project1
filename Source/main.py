@@ -3,6 +3,7 @@ import sys
 import time
 import re
 from queue import PriorityQueue
+import random 
 
 # Function to get level from filename
 def get_level_from_filename(filename):
@@ -91,6 +92,51 @@ def read_input_file_level3(file_path):
         
         return n, m, committed_time, fuel_capacity, city_map, gas_stations, toll_booths
 
+def read_input_file_level4(file_path):
+    with open(file_path, 'r') as f:
+        n, m, committed_time, fuel_capacity = map(int, f.readline().strip().split())
+        city_map = []
+        gas_stations = {}  # Use a dictionary to store refuel times
+        toll_booths = {}
+        vehicles = {}  # Store vehicle positions and destinations
+        goals = {}  # Store goal positions
+
+        start_pattern = re.compile(r'^S(\d+)$')
+        goal_pattern = re.compile(r'^G(\d+)$')
+        
+        for i in range(n):
+            line = f.readline().strip().split()
+            row = []
+            for j, char in enumerate(line):
+                if char == '0':
+                    row.append(0)
+                elif char == '-1':
+                    row.append(-1)
+                elif char == 'S':
+                    row.append('S')
+                elif char == 'G':
+                    row.append('G')
+                elif char.startswith('F'):
+                    refuel_time = int(char[1:])  # Extract refuel time
+                    row.append((i, j))  # Store position
+                    gas_stations[(i, j)] = refuel_time
+                elif char.isdigit():
+                    toll_time = int(char)
+                    row.append(toll_time)
+                    toll_booths[(i, j)] = toll_time
+                elif start_pattern.match(char):
+                    vehicle_id = int(start_pattern.match(char).group(1))
+                    row.append(char)
+                    vehicles[vehicle_id] = {'position': (i, j), 'destination': None}
+                elif goal_pattern.match(char):
+                    goal_id = int(goal_pattern.match(char).group(1))
+                    row.append(char)
+                    goals[goal_id] = (i, j)
+                    
+            city_map.append(row)
+        
+        return n, m, committed_time, fuel_capacity, city_map, gas_stations, toll_booths, vehicles, goals
+
 # Function for uniform cost search pathfinding algorithm (test GUI)
 def uniform_cost_search(city_map, start, goal):
     n = len(city_map)
@@ -134,6 +180,7 @@ def uniform_cost_search(city_map, start, goal):
     
     return path
 
+
 # Initialize Pygame
 pygame.init()
 
@@ -149,12 +196,14 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
+LIGHT_YELLOW = (255, 255, 224)
 DARK_BLUE = (0, 0, 139)
 LIGHT_BLUE = (173, 216, 230)
 LIGHT_GREEN = (144, 238, 144)
+LIGHT_PINK = (255, 182, 193)
 
 # Define level and input file
-input_file = 'input1_level3.txt'  # Change the input file name here
+input_file = 'input1_level4.txt'  # Change the input file name here
 level = get_level_from_filename(input_file)
 
 # Read input file based on level
@@ -164,6 +213,8 @@ elif level == 2:
     n, m, t, city_map, toll_booths = read_input_file_level2(input_file)
 elif level == 3:
     n, m, committed_time, fuel_capacity, city_map, gas_stations, toll_booths = read_input_file_level3(input_file)
+elif level == 4:
+    n, m, committed_time, fuel_capacity, city_map, gas_stations, toll_booths, vehicles, goals = read_input_file_level4(input_file)
 else:
     print(f"Unsupported level: {level}")
     pygame.quit()
@@ -223,8 +274,6 @@ def draw_map_level2(screen, city_map, elapsed_time=None):
                 color = (255, 182, 193)  #light pink
             elif isinstance(city_map[row][col], int) and city_map[row][col] > 0:
                 color = LIGHT_BLUE  
-            elif isinstance(city_map[row][col], str) and city_map[row][col].startswith('F'):
-                color = YELLOW  
 
             pygame.draw.rect(screen, color, (offset_x + col*cell_size, offset_y + row*cell_size, cell_size, cell_size))
             pygame.draw.rect(screen, BLACK, (offset_x + col*cell_size, offset_y + row*cell_size, cell_size, cell_size), 1)
@@ -258,8 +307,8 @@ def draw_map_level3(screen, city_map, fuel_remaining=None, elapsed_time=None):
                 color = (255, 182, 193)  # light pink
             elif isinstance(cell_value, int) and cell_value > 0:
                 color = LIGHT_BLUE  # Toll booth
-            elif isinstance(cell_value, str) and cell_value.startswith('F'):
-                color = YELLOW  # Gas station
+            elif isinstance(city_map[row][col], tuple) and city_map[row][col] in gas_stations:
+                color = LIGHT_YELLOW  # Gas station
             
             pygame.draw.rect(screen, color, (offset_x + col * cell_size, offset_y + row * cell_size, cell_size, cell_size))
             pygame.draw.rect(screen, BLACK, (offset_x + col * cell_size, offset_y + row * cell_size, cell_size, cell_size), 1)
@@ -289,7 +338,47 @@ def draw_map_level3(screen, city_map, fuel_remaining=None, elapsed_time=None):
         fuel_text = font.render(f"Fuel Remaining: {fuel_remaining} liters", True, BLACK)
         screen.blit(fuel_text, (20, 40))
 
-    
+# Draw the map function for level 4
+def draw_map_level4(screen, city_map, fuel_remaining=None, elapsed_time=None):
+    for row in range(len(city_map)):
+        for col in range(len(city_map[0])):
+            color = WHITE
+            cell_value = city_map[row][col]
+            if cell_value == -1:
+                color = DARK_BLUE
+            elif isinstance(cell_value, int) and cell_value > 0:
+                color = LIGHT_BLUE  # Toll booth
+            elif isinstance(cell_value, str):
+                if cell_value.startswith('S') or cell_value == 'S':
+                    color = LIGHT_GREEN
+                elif cell_value.startswith('G') or cell_value == 'G':
+                    color = LIGHT_PINK
+            elif isinstance(city_map[row][col], tuple) and city_map[row][col] in gas_stations:
+                    color = LIGHT_YELLOW  # Gas station
+
+            pygame.draw.rect(screen, color, (offset_x + col * cell_size, offset_y + row * cell_size, cell_size, cell_size))
+            pygame.draw.rect(screen, BLACK, (offset_x + col * cell_size, offset_y + row * cell_size, cell_size, cell_size), 1)
+
+            # Draw text for special positions (S, G, and F)
+            if isinstance(cell_value, str) and (cell_value.startswith('G') or cell_value.startswith('S') or cell_value.startswith('F')):
+                text_surface = font.render(cell_value, True, BLACK)
+                text_rect = text_surface.get_rect(center=(offset_x + col * cell_size + cell_size // 2, offset_y + row * cell_size + cell_size // 2))
+                screen.blit(text_surface, text_rect)
+            if cell_value == 'S' or cell_value == 'G':
+                text_surface = font.render(cell_value, True, BLACK)
+                text_rect = text_surface.get_rect(center=(offset_x + col * cell_size + cell_size // 2, offset_y + row * cell_size + cell_size // 2))
+                screen.blit(text_surface, text_rect)
+            # Draw text for toll booths and gas stations
+            elif isinstance(cell_value, int) and cell_value > 0:
+                text_surface = font.render(str(cell_value), True, BLACK)
+                text_rect = text_surface.get_rect(center=(offset_x + col * cell_size + cell_size // 2, offset_y + row * cell_size + cell_size // 2))
+                screen.blit(text_surface, text_rect)
+            elif isinstance(city_map[row][col], tuple) and city_map[row][col] in gas_stations:
+                text_surface = font.render(f"F{gas_stations[city_map[row][col]]}", True, BLACK)
+                text_rect = text_surface.get_rect(center=(offset_x + col * cell_size + cell_size // 2, offset_y + row * cell_size + cell_size // 2))
+                screen.blit(text_surface, text_rect)
+
+         
 # Draw the path function
 def draw_path(screen, segments, color, current_position):
     # Highlight current position
@@ -306,15 +395,14 @@ def draw_path(screen, segments, color, current_position):
         end_pos = (offset_x + end[1] * cell_size + cell_size // 2, offset_y + end[0] * cell_size + cell_size // 2)
         pygame.draw.line(screen, color, start_pos, end_pos, 3)
 
+
 # Main loop
 running = True
 current_position = start_pos
 elapsed_time = 0
 segments = []
 path_found = False
-if level == 3:
-    fuel_remaining = fuel_capacity
-
+fuel_remaining = fuel_capacity
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -334,45 +422,49 @@ while running:
         draw_map_level3(screen, city_map,fuel_remaining, elapsed_time)
         # test gui
         path = uniform_cost_search(city_map, current_position, goal_pos) 
+    elif level == 4:
+        draw_map_level4(screen, city_map,fuel_remaining, elapsed_time)
+    if level in [1, 2, 3]:    
+        if path:
+            if current_position == goal_pos:
+                break
 
-    if path:
-        if current_position == goal_pos:
-            break
+            next_position = path[1]
+            time.sleep(1)  # Adjust delay for visualization
 
-        next_position = path[1]
-        time.sleep(1)  # Adjust delay for visualization
+            # Calculate time for the current cell and handle refueling
+            cell_value = city_map[next_position[0]][next_position[1]]
+            if isinstance(cell_value, int) and cell_value > 0:
+                # Toll booth: add time for the toll booth
+                elapsed_time += cell_value
+            elif isinstance(cell_value, tuple) and cell_value in gas_stations:
+                # Gas station: refuel and add refuel time
+                refuel_time = gas_stations[cell_value]  # Retrieve refuel time for the gas station
+                fuel_remaining = fuel_capacity
+                elapsed_time += refuel_time
+            else:
+                # Normal cell or empty cell: add 1 minute for the move
+                elapsed_time += 1
+                
+            # Consume fuel
+            fuel_remaining -= 1
+            
+            # Check if out of fuel
+            if fuel_remaining < 0:
+                print("Ran out of fuel!")
+                break
 
-         # Calculate time for the current cell and handle refueling
-        cell_value = city_map[next_position[0]][next_position[1]]
-        if isinstance(cell_value, int) and cell_value > 0:
-            # Toll booth: add time for the toll booth
-            elapsed_time += cell_value
-        elif isinstance(cell_value, tuple) and cell_value in gas_stations:
-            # Gas station: refuel and add refuel time
-            refuel_time = gas_stations[cell_value]  # Retrieve refuel time for the gas station
-            fuel_remaining = fuel_capacity
-            elapsed_time += refuel_time
-        else:
-            # Normal cell or empty cell: add 1 minute for the move
-            elapsed_time += 1
+            # Add segment to draw path
+            segments.append((current_position, next_position))
+            
+            current_position = next_position
 
+        # Draw path segments
+        draw_path(screen, segments, RED, current_position)
 
-        # Consume fuel
-        fuel_remaining -= 1
+    if level == 4:
+        pass
         
-        # Check if out of fuel
-        if fuel_remaining < 0:
-            print("Ran out of fuel!")
-            break
-
-        # Add segment to draw path
-        segments.append((current_position, next_position))
-        
-        current_position = next_position
-
-    # Draw path segments
-    draw_path(screen, segments, RED, current_position)
-
     pygame.display.flip()
 
 # After the main loop ends
