@@ -111,7 +111,7 @@ def trace(node):
         node = node.parent
     return path[::-1]
 
-def find_path(n, m, grid, algorithm='bfs'):
+def find_path_level1(n, m, grid, algorithm='bfs'):
     start_coord = goal_coord = None
     for i in range(n):
         if 'S' in grid[i]:
@@ -139,11 +139,11 @@ def find_path(n, m, grid, algorithm='bfs'):
         return None
 
 # Example usage:
-# with open("input1_level1.txt") as inp:
-#     n, m = map(int, inp.readline().split())
-#     grid = [inp.readline().split() for _ in range(n)]
-#     path = find_path(n, m, grid, algorithm='a_star')
-#     if path:
-#         print(path)
-#     else:
-#         print("No path found.")
+''''with open("input1_level1.txt") as inp:
+     n, m = map(int, inp.readline().split())
+     grid = [inp.readline().split() for _ in range(n)]
+     path = find_path_level1(n, m, grid, algorithm='a_star')
+     if path:
+         print(path)
+     else:
+         print("No path found.")'''
