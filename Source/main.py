@@ -5,6 +5,7 @@ import re
 from queue import PriorityQueue
 import random 
 from level3 import find_path_level3
+from level2 import find_path_level2
 
 # Function to get level from filename
 def get_level_from_filename(filename):
@@ -206,7 +207,7 @@ LIGHT_GREEN = (144, 238, 144)
 LIGHT_PINK = (255, 182, 193)
 
 # Define level and input file
-input_file = 'input1_level3.txt'  # Change the input file name here
+input_file = 'input3_level2.txt'  # Change the input file name here
 level = get_level_from_filename(input_file)
 
 # Read input file based on level
@@ -244,7 +245,7 @@ offset_y = (screen_size[1] - n * cell_size) // 2
 font = pygame.font.SysFont('Arial', 20)
 
 # Draw the map function for level 1
-def draw_map_level1(screen, city_map):
+def draw_map_level1(screen, city_map, cells_traversed=None):
     for row in range(len(city_map)):
         for col in range(len(city_map[0])):
             color = WHITE
@@ -263,9 +264,12 @@ def draw_map_level1(screen, city_map):
                 text_surface = font.render(city_map[row][col], True, BLACK)
                 text_rect = text_surface.get_rect(center=(offset_x + col * cell_size + cell_size // 2, offset_y + row * cell_size + cell_size // 2))
                 screen.blit(text_surface, text_rect)
+    if cells_traversed is not None:
+        cells_text = font.render(f"Cells Traversed: {cells_traversed}", True, BLACK)
+        screen.blit(cells_text, (20, 50))
 
 # Draw the map function
-def draw_map_level2(screen, city_map, elapsed_time=None):
+def draw_map_level2(screen, city_map, elapsed_time=None, cells_traversed=None):
     for row in range(len(city_map)):
         for col in range(len(city_map[0])):
             color = WHITE
@@ -292,10 +296,13 @@ def draw_map_level2(screen, city_map, elapsed_time=None):
                 text_surface = font.render(str(city_map[row][col]), True, BLACK)
                 text_rect = text_surface.get_rect(center=(offset_x + col*cell_size + cell_size // 2, offset_y + row*cell_size + cell_size // 2))
                 screen.blit(text_surface, text_rect)
-    # Display elapsed time
+    # Display elapsed time and cells traversed
     if elapsed_time is not None:
         time_text = font.render(f"Elapsed Time: {elapsed_time} seconds", True, BLACK)
         screen.blit(time_text, (20, 20))
+    if cells_traversed is not None:
+        cells_text = font.render(f"Cells Traversed: {cells_traversed}", True, BLACK)
+        screen.blit(cells_text, (20, 50))
 
 def draw_map_level3(screen, city_map, fuel_remaining=None, elapsed_time=None):
     for row in range(len(city_map)):
@@ -405,8 +412,10 @@ current_position = start_pos
 elapsed_time = 0
 segments = []
 path_found = False
-fuel_remaining = fuel_capacity
+if level in [3, 4]:
+    fuel_remaining = fuel_capacity
 curr_id = 1
+total_steps = 0
 
 while running:
     for event in pygame.event.get():
@@ -414,21 +423,63 @@ while running:
             running = False
 
     screen.fill(WHITE)
+    
     if level == 1:
-        draw_map_level1(screen, city_map)
-        # test gui
+        draw_map_level1(screen, city_map, total_steps)
+         # test gui
         path = uniform_cost_search(city_map, current_position, goal_pos)
+        
+        if path:
+            if current_position == goal_pos:
+                break
+
+            next_position = path[1]
+            time.sleep(1)  # Adjust delay for visualization
+
+            # Add segment to draw path
+            segments.append((current_position, next_position))
+            
+            current_position = next_position
+            total_steps += 1
+
+        # Draw path segments
+        draw_path(screen, segments, RED, current_position)
+        
     elif level == 2:
-        draw_map_level2(screen, city_map, elapsed_time)
+        draw_map_level2(screen, city_map, elapsed_time, total_steps)
         # test gui
-        path = uniform_cost_search(city_map, current_position, goal_pos)
+        # path = uniform_cost_search(city_map, current_position, goal_pos)
+        path = find_path_level2(city_map, current_position, goal_pos, t)
+        
+        if path:
+            if current_position == goal_pos:
+                break
+
+            next_position = path[1]
+            time.sleep(1)  # Adjust delay for visualization
+
+            # Calculate time for the current cell
+            cell_value = city_map[next_position[0]][next_position[1]]
+            if isinstance(cell_value, int) and cell_value > 0:
+                # Toll booth: add time for the toll booth
+                elapsed_time += cell_value + 1
+            else:
+                # Normal cell or empty cell: add 1 minute for the move
+                elapsed_time += 1
+
+            # Add segment to draw path
+            segments.append((current_position, next_position))
+            
+            current_position = next_position
+            total_steps += 1
+
+        # Draw path segments
+        draw_path(screen, segments, RED, current_position)
+        
     elif level == 3:
         draw_map_level3(screen, city_map,fuel_remaining, elapsed_time)
         # test gui
         path = find_path_level3(n, m, committed_time, fuel_capacity, grid) 
-    elif level == 4:
-        draw_map_level4(screen, city_map,fuel_remaining, elapsed_time)
-    if level in [1, 2, 3]:    
         if path:
             if current_position == goal_pos:
                 break
@@ -467,18 +518,21 @@ while running:
             segments.append((current_position, next_position))
             
             current_position = next_position
+            total_steps += 1
 
         # Draw path segments
         draw_path(screen, segments, RED, current_position)
 
-    if level == 4:
-        pass
+    elif level == 4:
+        draw_map_level4(screen, city_map,fuel_remaining, elapsed_time)
         
     pygame.display.flip()
 
 # After the main loop ends
 if current_position == goal_pos:
-    print(f"Reached the goal in {elapsed_time} minutes.")
+    if level in [2, 3, 4]:
+        print(f"Reached the goal in {elapsed_time} minutes.")
+    print(f"Cells Traversed (include Goal): {total_steps}")
 else:
     print("Path not found.")
 
