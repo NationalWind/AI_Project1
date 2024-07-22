@@ -426,7 +426,7 @@ while running:
     
     if level == 1:
         draw_map_level1(screen, city_map, total_steps)
-         # test gui
+        # test gui
         path = uniform_cost_search(city_map, current_position, goal_pos)
         
         if path:
@@ -507,7 +507,8 @@ while running:
             elapsed_time += 1 # Path adjustment
                 
             # Consume fuel
-            fuel_remaining -= 1
+            if next_position == current_position:
+                fuel_remaining -= 1
             
             # Check if out of fuel
             if fuel_remaining < 0:
