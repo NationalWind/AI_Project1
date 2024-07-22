@@ -4,6 +4,7 @@ import time
 import re
 from queue import PriorityQueue
 import random 
+from level3 import find_path_level3
 
 # Function to get level from filename
 def get_level_from_filename(filename):
@@ -65,6 +66,7 @@ def read_input_file_level3(file_path):
     with open(file_path, 'r') as f:
         n, m, committed_time, fuel_capacity = map(int, f.readline().strip().split())
         city_map = []
+        grid = []
         gas_stations = {}  # Use a dictionary to store refuel times
         toll_booths = {}
         
@@ -89,8 +91,9 @@ def read_input_file_level3(file_path):
                     row.append(toll_time)
                     toll_booths[(i, j)] = toll_time
             city_map.append(row)
+            grid.append(line)
         
-        return n, m, committed_time, fuel_capacity, city_map, gas_stations, toll_booths
+        return n, m, committed_time, fuel_capacity, city_map, gas_stations, toll_booths, grid
 
 def read_input_file_level4(file_path):
     with open(file_path, 'r') as f:
@@ -203,7 +206,7 @@ LIGHT_GREEN = (144, 238, 144)
 LIGHT_PINK = (255, 182, 193)
 
 # Define level and input file
-input_file = 'input1_level4.txt'  # Change the input file name here
+input_file = 'input1_level3.txt'  # Change the input file name here
 level = get_level_from_filename(input_file)
 
 # Read input file based on level
@@ -212,7 +215,7 @@ if level == 1:
 elif level == 2:
     n, m, t, city_map, toll_booths = read_input_file_level2(input_file)
 elif level == 3:
-    n, m, committed_time, fuel_capacity, city_map, gas_stations, toll_booths = read_input_file_level3(input_file)
+    n, m, committed_time, fuel_capacity, city_map, gas_stations, toll_booths, grid = read_input_file_level3(input_file)
 elif level == 4:
     n, m, committed_time, fuel_capacity, city_map, gas_stations, toll_booths, vehicles, goals = read_input_file_level4(input_file)
 else:
@@ -403,16 +406,17 @@ elapsed_time = 0
 segments = []
 path_found = False
 fuel_remaining = fuel_capacity
+curr_id = 1
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
     screen.fill(WHITE)
-        
     if level == 1:
         draw_map_level1(screen, city_map)
-         # test gui
+        # test gui
         path = uniform_cost_search(city_map, current_position, goal_pos)
     elif level == 2:
         draw_map_level2(screen, city_map, elapsed_time)
@@ -421,7 +425,7 @@ while running:
     elif level == 3:
         draw_map_level3(screen, city_map,fuel_remaining, elapsed_time)
         # test gui
-        path = uniform_cost_search(city_map, current_position, goal_pos) 
+        path = find_path_level3(n, m, committed_time, fuel_capacity, grid) 
     elif level == 4:
         draw_map_level4(screen, city_map,fuel_remaining, elapsed_time)
     if level in [1, 2, 3]:    
@@ -429,22 +433,27 @@ while running:
             if current_position == goal_pos:
                 break
 
-            next_position = path[1]
+            # next_position = path[1]
+            next_position = path[curr_id]
+            curr_id += 1 # Path adjustment
+
             time.sleep(1)  # Adjust delay for visualization
 
             # Calculate time for the current cell and handle refueling
             cell_value = city_map[next_position[0]][next_position[1]]
-            if isinstance(cell_value, int) and cell_value > 0:
-                # Toll booth: add time for the toll booth
-                elapsed_time += cell_value
-            elif isinstance(cell_value, tuple) and cell_value in gas_stations:
-                # Gas station: refuel and add refuel time
-                refuel_time = gas_stations[cell_value]  # Retrieve refuel time for the gas station
-                fuel_remaining = fuel_capacity
-                elapsed_time += refuel_time
-            else:
-                # Normal cell or empty cell: add 1 minute for the move
-                elapsed_time += 1
+            # if isinstance(cell_value, int) and cell_value > 0:
+            #     # Toll booth: add time for the toll booth
+            #     elapsed_time += cell_value
+            # elif isinstance(cell_value, tuple) and cell_value in gas_stations:
+            #     # Gas station: refuel and add refuel time
+            #     refuel_time = gas_stations[cell_value]  # Retrieve refuel time for the gas station
+            #     fuel_remaining = fuel_capacity
+            #     elapsed_time += 1
+            # else:
+            #     # Normal cell or empty cell: add 1 minute for the move
+            #     elapsed_time += 1
+
+            elapsed_time += 1 # Path adjustment
                 
             # Consume fuel
             fuel_remaining -= 1
