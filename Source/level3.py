@@ -106,23 +106,23 @@ def trace(node):
     return path[::-1], depth - 1
 
 def find_path_level3(n, m, t, f, grid):
-        for i in range(n):
-            if "S" in grid[i]:
-                start_coord = (i, grid[i].index("S"))
-            if "G" in grid[i]:
-                goal_coord = (i, grid[i].index("G"))
+    for i in range(n):
+        if "S" in grid[i]:
+            start_coord = (i, grid[i].index("S"))
+        if "G" in grid[i]:
+            goal_coord = (i, grid[i].index("G"))
 
-        node = A_star(
-            n,
-            m,
-            f,
-            (*start_coord, 0, t, -1, f),
-            (*goal_coord, 0, 0, -1, 0),
-            grid,
-        )
-        path = trace(node)[0]
-        filtered_path = [(coord[0], coord[1]) for coord in path]
-        return filtered_path
+    node = A_star(
+        n,
+        m,
+        f,
+        (*start_coord, 0, t, -1, f),
+        (*goal_coord, 0, 0, -1, 0),
+        grid,
+    )
+    path = trace(node)[0]
+    filtered_path = [(coord[0], coord[1]) for coord in path]
+    return filtered_path
 
 # with open("input1_level3.txt") as inp:
 #     n, m, t, f = map(int, (inp.readline().split()))
