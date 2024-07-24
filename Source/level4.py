@@ -151,7 +151,7 @@ def trace(node):
 
 
 def main():
-    with open("input.txt") as inp:
+    with open("input2_level4.txt") as inp:
         n, m, t, f = map(int, (inp.readline().split()))
 
         grid = [[] for _ in range(n)]
@@ -295,5 +295,5 @@ def main():
                     running = False
 
 
-main()
-pygame.quit()
+# main()
+# pygame.quit()
