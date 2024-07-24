@@ -5,6 +5,7 @@ import re
 import math
 from queue import PriorityQueue
 import random 
+from level1 import find_path_level1
 from level3 import find_path_level3
 from level2 import find_path_level2
 import level4
@@ -534,7 +535,7 @@ while running:
     if level == 1:
         draw_map_level1(screen, city_map, total_steps)
         # test gui
-        path = uniform_cost_search(city_map, current_position, goal_pos)
+        path = find_path_level1(n, m, grid, algorithm='bfs')
         
         if path:
             if current_position == goal_pos:
