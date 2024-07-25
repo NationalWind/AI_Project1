@@ -12,7 +12,7 @@ import level4
 
 
 # Define level and input file
-input_file = 'Source/input4_level4.txt'  # Change the input file name here
+input_file = 'Source/input5_level4.txt'  # Change the input file name here
 
 # Function to get level from filename
 def get_level_from_filename(filename):
@@ -636,6 +636,7 @@ while running:
     elif level == 4:
         # find curr states
         if event.type == pygame.USEREVENT + 1:
+            draw_map_level4()
             if [cur_state[0][0], cur_state[0][1]] != start_goal[0][1] or i > 0:
                 if start_goal[i][1] == [-1, -1]:
                     update_new_goal(i)
@@ -643,7 +644,8 @@ while running:
                 path = level4.trace(node)[0]
                 if not path:
                     if i == 0:
-                        print("Not OK")
+                        print("Path not found.")
+                        time.sleep(1)
                         running = False
                         break
                     else:
@@ -662,7 +664,7 @@ while running:
                         start_goal[i][1] = [-1, -1]
 
                 if i == n_agents - 1:
-                    draw_map_level4()
+                    # draw_map_level4()
                     draw_cur_states()
                     elapsed_time = t - cur_state[0][3]
                     fuel_remaining = cur_state[0][5]
@@ -670,7 +672,7 @@ while running:
                     time.sleep(0.75)
                 i = (i + 1) % n_agents
             else:
-                print("OK")
+                print("Path found")
                 running = False
                 break
     pygame.display.flip()
