@@ -45,9 +45,7 @@ def read_input_file_level1(file_path):
                 elif char.isdigit():
                     row.append(int(char))
             city_map.append(row)
-        print("City Map:")
-        for row in city_map:
-            print(row)
+    
         return n, m, city_map
 
 # Function to read input file for Level 2
