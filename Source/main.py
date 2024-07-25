@@ -12,7 +12,7 @@ import level4
 
 
 # Define level and input file
-input_file = 'Source/input4_level4.txt'  # Change the input file name here
+input_file = 'Source/input5_level4.txt'  # Change the input file name here
 
 # Function to get level from filename
 def get_level_from_filename(filename):
@@ -24,6 +24,27 @@ def get_level_from_filename(filename):
         return None
 
 level = get_level_from_filename(input_file)
+#Function to choice algorithm
+def choose_algorithm():
+    print("Choose an algorithm:")
+    print("1. BFS")
+    print("2. DFS")
+    print("3. UCS")
+    print("4. GBFS")
+    print("5. A*")
+
+    choice = input("Enter the number of the algorithm you want to use: ").strip()
+
+    algorithms = {
+        '1': 'bfs',
+        '2': 'dfs',
+        '3': 'ucs',
+        '4': 'gbfs',
+        '5': 'a_star'
+    }
+
+    return algorithms.get(choice, None)
+
 
 # Function to read input file for Level 1
 def read_input_file_level1(file_path):
@@ -197,6 +218,11 @@ LIGHT_PINK = (255, 182, 193)
 
 # Read input file based on level
 if level == 1:
+  #  algorithm = choose_algorithm()
+  #  if algorithm is None:
+  #      print("Invalid choice")
+  #      pygame.quit()
+  #      sys.exit()
     n, m, city_map = read_input_file_level1(input_file)
 elif level == 2:
     n, m, t, city_map, toll_booths = read_input_file_level2(input_file)
@@ -610,6 +636,7 @@ while running:
     elif level == 4:
         # find curr states
         if event.type == pygame.USEREVENT + 1:
+            draw_map_level4()
             if [cur_state[0][0], cur_state[0][1]] != start_goal[0][1] or i > 0:
                 if start_goal[i][1] == [-1, -1]:
                     update_new_goal(i)
@@ -617,7 +644,8 @@ while running:
                 path = level4.trace(node)[0]
                 if not path:
                     if i == 0:
-                        print("Not OK")
+                        print("Path not found.")
+                        time.sleep(1)
                         running = False
                         break
                     else:
@@ -636,7 +664,7 @@ while running:
                         start_goal[i][1] = [-1, -1]
 
                 if i == n_agents - 1:
-                    draw_map_level4()
+                    # draw_map_level4()
                     draw_cur_states()
                     elapsed_time = t - cur_state[0][3]
                     fuel_remaining = cur_state[0][5]
@@ -644,7 +672,7 @@ while running:
                     time.sleep(0.75)
                 i = (i + 1) % n_agents
             else:
-                print("OK")
+                print("Path found")
                 running = False
                 break
     pygame.display.flip()
