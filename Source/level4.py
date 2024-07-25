@@ -151,7 +151,7 @@ def trace(node):
 
 
 def main():
-    with open("input2_level4.txt") as inp:
+    with open("input1_level1.txt") as inp:
         n, m, t, f = map(int, (inp.readline().split()))
 
         grid = [[] for _ in range(n)]
