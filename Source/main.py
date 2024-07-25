@@ -30,7 +30,6 @@ def read_input_file_level1(file_path):
     with open(file_path, 'r') as f:
         n, m = map(int, f.readline().strip().split())
         city_map = []
-        grid = []
         for _ in range(n):
             line = f.readline().strip()
             row = []
@@ -46,8 +45,10 @@ def read_input_file_level1(file_path):
                 elif char.isdigit():
                     row.append(int(char))
             city_map.append(row)
-            grid.append(line)
-        return n, m, city_map,grid
+        print("City Map:")
+        for row in city_map:
+            print(row)
+        return n, m, city_map
 
 # Function to read input file for Level 2
 def read_input_file_level2(file_path):
@@ -242,7 +243,7 @@ LIGHT_PINK = (255, 182, 193)
 
 # Read input file based on level
 if level == 1:
-    n, m, city_map, grid = read_input_file_level1(input_file)
+    n, m, city_map = read_input_file_level1(input_file)
 elif level == 2:
     n, m, t, city_map, toll_booths = read_input_file_level2(input_file)
 elif level == 3:
@@ -533,7 +534,8 @@ while running:
     if level == 1:
         draw_map_level1(screen, city_map, total_steps)
         # test gui
-        path = find_path_level1( n, m, start_pos, goal_pos,grid)
+        
+        path = find_path_level1( n, m, start_pos, goal_pos,city_map, algorithm='dfs')
 
         if path:
             if current_position == goal_pos:

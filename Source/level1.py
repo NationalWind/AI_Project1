@@ -1,131 +1,149 @@
 import heapq
-from queue import PriorityQueue
+from collections import deque
 
-def get_neighbors(x, y, n, m):
-    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-    neighbors = []
-    for dx, dy in directions:
-        nx, ny = x + dx, y + dy
-        if 0 <= nx < n and 0 <= ny < m:
-            neighbors.append((nx, ny))
-    return neighbors
+# Node class to represent each point in the grid
+class Node:
+    def __init__(self, state, path_cost=0, parent=None):
+        self.state = state  # state is a tuple (i, j)
+        self.path_cost = path_cost
+        self.parent = parent
 
-def bfs(grid, start, goal, n, m):
-    queue = deque([start])
-    came_from = {start: None}
-    while queue:
-        current = queue.popleft()
-        if current == goal:
-            break
-        for neighbor in get_neighbors(current[0], current[1], n, m):
-            if grid[neighbor[0]][neighbor[1]] != '-1' and neighbor not in came_from:
-                queue.append(neighbor)
-                came_from[neighbor] = current
-    return reconstruct_path(came_from, start, goal)
+    def __lt__(self, other):
+        return self.path_cost < other.path_cost
 
-def dfs(grid, start, goal, n, m):
-    stack = [start]
-    came_from = {start: None}
-    visited = set()
-    while stack:
-        current = stack.pop()
-        if current in visited:
-            continue
-        visited.add(current)
-        if current == goal:
-            break
-        for neighbor in get_neighbors(current[0], current[1], n, m):
-            if grid[neighbor[0]][neighbor[1]] != '-1' and neighbor not in visited:
-                stack.append(neighbor)
-                if neighbor not in came_from:
-                    came_from[neighbor] = current
-    return reconstruct_path(came_from, start, goal)
+# Breadth-first search implementation
+def bfs(n, m, start_state, goal_state, grid):
+    node = Node(start_state)
+    frontier = deque([node])
+    reached = {node.state: node}
+    while frontier:
+        node = frontier.popleft()
+        if node.state == goal_state:
+            return node
+        for child in expand(node, n, m, grid):
+            s = child.state
+            if s not in reached:
+                reached[s] = child
+                frontier.append(child)
+    return None
 
-def ucs(grid, start, goal, n, m):
-    priority_queue = [(0, start)]
-    came_from = {start: None}
-    cost_so_far = {start: 0}
-    while priority_queue:
-        current_cost, current = heapq.heappop(priority_queue)
-        if current == goal:
-            break
-        for neighbor in get_neighbors(current[0], current[1], n, m):
-            if grid[neighbor[0]][neighbor[1]] == '-1':
-                continue
-            new_cost = current_cost + 1
-            if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
-                cost_so_far[neighbor] = new_cost
-                heapq.heappush(priority_queue, (new_cost, neighbor))
-                came_from[neighbor] = current
-    return reconstruct_path(came_from, start, goal)
+# Depth-first search implementation
+def dfs(n, m, start_state, goal_state, grid):
+    node = Node(start_state)
+    frontier = [node]  
+    reached = {node.state: node}  
 
-def greedy_bfs(grid, start, goal, n, m):
-    def heuristic(a, b):
-        return abs(a[0] - b[0]) + abs(a[1] - b[1])
+    while frontier:
+        node = frontier.pop()
+        if node.state == goal_state:
+            return node
+        
+        for child in expand(node, n, m, grid):
+            s = child.state
+            if s not in reached:  
+                reached[s] = child  
+                frontier.append(child)  
+
+    return None 
+
+
+# Uniform-cost search implementation
+def ucs(n, m, start_state, goal_state, grid):
+    node = Node(start_state)
+    frontier = []
+    heapq.heappush(frontier, node)
+    reached = {node.state: node}
+    while frontier:
+        node = heapq.heappop(frontier)
+        if node.state == goal_state:
+            return node
+        for child in expand(node, n, m, grid):
+            s = child.state
+            if s not in reached or child.path_cost < reached[s].path_cost:
+                reached[s] = child
+                heapq.heappush(frontier, child)
+    return None
+
+# Greedy best-first search implementation
+def gbfs(n, m, start_state, goal_state, grid):
+    def heuristic(state):
+        # Manhattan distance heuristic
+        return abs(state[0] - goal_state[0]) + abs(state[1] - goal_state[1])
     
-    priority_queue = [(heuristic(start, goal), start)]
-    came_from = {start: None}
-    visited = set()
-    while priority_queue:
-        _, current = heapq.heappop(priority_queue)
-        if current in visited:
-            continue
-        visited.add(current)
-        if current == goal:
-            break
-        for neighbor in get_neighbors(current[0], current[1], n, m):
-            if grid[neighbor[0]][neighbor[1]] != '-1' and neighbor not in visited:
-                heapq.heappush(priority_queue, (heuristic(neighbor, goal), neighbor))
-                if neighbor not in came_from:
-                    came_from[neighbor] = current
-    return reconstruct_path(came_from, start, goal)
+    node = Node(start_state)
+    frontier = []
+    heapq.heappush(frontier, (heuristic(start_state), node))
+    reached = {node.state: node}
+    while frontier:
+        _, node = heapq.heappop(frontier)
+        if node.state == goal_state:
+            return node
+        for child in expand(node, n, m, grid):
+            s = child.state
+            if s not in reached:
+                reached[s] = child
+                heapq.heappush(frontier, (heuristic(s), child))
+    return None
 
-def a_star(grid, start, goal, n, m):
-    def heuristic(a, b):
-        return abs(a[0] - b[0]) + abs(a[1] - b[1])
+# A* search implementation
+def a_star(n, m, start_state, goal_state, grid):
+    def heuristic(node):
+        # Combined cost of path and heuristic estimate
+        return node.path_cost + abs(goal_state[0] - node.state[0]) + abs(goal_state[1] - node.state[1])
     
-    priority_queue = [(0, start)]
-    came_from = {start: None}
-    cost_so_far = {start: 0}
-    while priority_queue:
-        _, current = heapq.heappop(priority_queue)
-        if current == goal:
-            break
-        for neighbor in get_neighbors(current[0], current[1], n, m):
-            if grid[neighbor[0]][neighbor[1]] == '-1':
-                continue
-            new_cost = cost_so_far[current] + 1
-            if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
-                cost_so_far[neighbor] = new_cost
-                priority = new_cost + heuristic(neighbor, goal)
-                heapq.heappush(priority_queue, (priority, neighbor))
-                came_from[neighbor] = current
-    return reconstruct_path(came_from, start, goal)
+    node = Node(start_state)
+    frontier = []
+    heapq.heappush(frontier, (heuristic(node), node))
+    reached = {node.state: node}
+    while frontier:
+        _, node = heapq.heappop(frontier)
+        if node.state == goal_state:
+            return node
+        for child in expand(node, n, m, grid):
+            s = child.state
+            if s not in reached or child.path_cost < reached[s].path_cost:
+                reached[s] = child
+                heapq.heappush(frontier, (heuristic(child), child))
+    return None
 
-def reconstruct_path(came_from, start, goal):
-    if goal not in came_from:
-        return None
+# Function to expand nodes and avoid obstacles
+def expand(node, n, m, grid):
+    children = []
+    moves = [(0, 1), (1, 0), (0, -1), (-1, 0)]  # Right, Down, Left, Up
+    i, j = node.state
+    for move in moves:
+        u, v = i + move[0], j + move[1]
+        # Check boundaries and obstacle presence
+        if 0 <= u < n and 0 <= v < m and grid[u][v] != -1:  # Ensure grid[u][v] is treated as an integer
+            child = Node((u, v), node.path_cost + 1, node)
+            children.append(child)
+    return children
+
+# Function to trace the path from the goal node to the start
+def trace(node):
     path = []
-    current = goal
-    while current != start:
-        path.append(current)
-        current = came_from[current]
-    path.append(start)
-    path.reverse()
-    return path
+    while node is not None:
+        path.append(node.state)
+        node = node.parent
+    return path[::-1]
 
-def find_path_level1( n, m, start, goal,grid):
-    algorithms = {
-        "BFS": bfs,
-       # "DFS": dfs,
-       # "UCS": ucs,
-       # "GreedyBFS": greedy_bfs,
-        #"A*": a_star
-    }
-    
-    paths = {}
-    for name, algorithm in algorithms.items():
-        path = algorithm(grid, start, goal, n, m)
-        paths[name] = path
-    return paths
+# Main function to find the path using specified algorithm
+def find_path_level1(n, m, start_coord, goal_coord, grid, algorithm='dfs'):
+    if algorithm == 'bfs':
+        node = bfs(n, m, start_coord, goal_coord, grid)
+    elif algorithm == 'dfs':
+        node = dfs(n, m, start_coord, goal_coord, grid)
+    elif algorithm == 'ucs':
+        node = ucs(n, m, start_coord, goal_coord, grid)
+    elif algorithm == 'gbfs':
+        node = gbfs(n, m, start_coord, goal_coord, grid)
+    elif algorithm == 'a_star':
+        node = a_star(n, m, start_coord, goal_coord, grid)
+    else:
+        raise ValueError("Unknown algorithm specified.")
 
+    if node is not None:
+        path = trace(node)
+        return path
+    else:
+        return None
