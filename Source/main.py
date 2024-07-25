@@ -12,7 +12,7 @@ import level4
 
 
 # Define level and input file
-input_file = 'input1_level1.txt'  # Change the input file name here
+input_file = 'Source/input1_level1.txt'  # Change the input file name here
 
 # Function to get level from filename
 def get_level_from_filename(filename):
