@@ -12,7 +12,7 @@ import level4
 
 
 # Define level and input file
-input_file = 'input1_level1.txt'  # Change the input file name here
+input_file = 'Source/input2_level3.txt'  # Change the input file name here
 
 # Function to get level from filename
 def get_level_from_filename(filename):
@@ -172,50 +172,6 @@ def read_input_file_level4(file_path):
 
         return n, m, committed_time, fuel_capacity, city_map, gas_stations, toll_booths, vehicles, goals, grid, start_goal
 
-# Function for uniform cost search pathfinding algorithm (test GUI)
-def uniform_cost_search(city_map, start, goal):
-    n = len(city_map)
-    m = len(city_map[0])
-    frontier = PriorityQueue()
-    frontier.put((0, start))  # (cost, (row, col))
-    came_from = {start: None}
-    cost_so_far = {start: 0}
-
-    while not frontier.empty():
-        current_cost, current = frontier.get()
-        
-        if current == goal:
-            break
-        
-        for direction in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
-            next_row = current[0] + direction[0]
-            next_col = current[1] + direction[1]
-            next_node = (next_row, next_col)
-            
-            if 0 <= next_row < n and 0 <= next_col < m:
-                if city_map[next_row][next_col] == -1:
-                    continue
-                
-                new_cost = current_cost + 1  # Assuming cost for each move is 1
-                if next_node not in cost_so_far or new_cost < cost_so_far[next_node]:
-                    cost_so_far[next_node] = new_cost
-                    priority = new_cost
-                    frontier.put((priority, next_node))
-                    came_from[next_node] = current
-    
-    # Reconstruct path
-    path = []
-    if goal in came_from:
-        current = goal
-        while current != start:
-            path.append(current)
-            current = came_from[current]
-        path.append(start)
-        path.reverse()
-    
-    return path
-
-
 # Initialize Pygame
 pygame.init()
 
@@ -273,7 +229,7 @@ offset_y = (screen_size[1] - n * cell_size) // 2
 # Set font for drawing text
 font = pygame.font.SysFont('Arial', 20)
 
-# Draw the map function for level 1
+# Draw the map function
 def draw_map_level1(screen, city_map, cells_traversed=None):
     for row in range(len(city_map)):
         for col in range(len(city_map[0])):
@@ -297,8 +253,7 @@ def draw_map_level1(screen, city_map, cells_traversed=None):
         cells_text = font.render(f"Cells Traversed: {cells_traversed}", True, BLACK)
         screen.blit(cells_text, (20, 50))
 
-# Draw the map function
-def draw_map_level2(screen, city_map, elapsed_time=None, cells_traversed=None):
+def draw_map_level2(screen, city_map, elapsed_time=None, cells_traversed=None, t=None):
     for row in range(len(city_map)):
         for col in range(len(city_map[0])):
             color = WHITE
@@ -326,14 +281,16 @@ def draw_map_level2(screen, city_map, elapsed_time=None, cells_traversed=None):
                 text_rect = text_surface.get_rect(center=(offset_x + col*cell_size + cell_size // 2, offset_y + row*cell_size + cell_size // 2))
                 screen.blit(text_surface, text_rect)
     # Display elapsed time and cells traversed
+    text = font.render(f"Committed delivery time: {t}", True, BLACK)
+    screen.blit(text, (250, 20))
     if elapsed_time is not None:
         time_text = font.render(f"Elapsed Time: {elapsed_time} seconds", True, BLACK)
         screen.blit(time_text, (20, 20))
     if cells_traversed is not None:
         cells_text = font.render(f"Cells Traversed: {cells_traversed}", True, BLACK)
         screen.blit(cells_text, (20, 50))
-
-def draw_map_level3(screen, city_map, fuel_remaining=None, elapsed_time=None):
+    
+def draw_map_level3(screen, city_map, fuel_remaining=None, elapsed_time=None, t=None):
     for row in range(len(city_map)):
         for col in range(len(city_map[0])):
             color = WHITE
@@ -367,6 +324,10 @@ def draw_map_level3(screen, city_map, fuel_remaining=None, elapsed_time=None):
                 text_surface = font.render(f"F{gas_stations[city_map[row][col]]}", True, BLACK)
                 text_rect = text_surface.get_rect(center=(offset_x + col * cell_size + cell_size // 2, offset_y + row * cell_size + cell_size // 2))
                 screen.blit(text_surface, text_rect)
+                
+    text = font.render(f"Committed delivery time: {t}", True, BLACK)
+    screen.blit(text, (250, 20))
+
     # Display elapsed time
     if elapsed_time is not None:
         time_text = font.render(f"Elapsed Time: {elapsed_time} seconds", True, BLACK)
@@ -531,8 +492,6 @@ while running:
     
     if level == 1:
         draw_map_level1(screen, city_map, total_steps)
-        # test gui
-        
         path = find_path_level1( n, m, start_pos, goal_pos,city_map, algorithm='dfs')
 
         if path:
@@ -549,12 +508,19 @@ while running:
             
             current_position = next_position
             total_steps += 1
+        else:
+            # Handle the case where no path is found
+            text = font.render("PATH NOT FOUND!", True, (255, 0, 0))  # Red color for visibility
+            screen.blit(text, (320, 80))
+            pygame.display.update()
+            time.sleep(2)  # Pause for 2 seconds to display the message
+            break
 
         # Draw path segments
         draw_path(screen, segments, RED, current_position)
         
     elif level == 2:
-        draw_map_level2(screen, city_map, elapsed_time, total_steps)
+        draw_map_level2(screen, city_map, elapsed_time, total_steps, t)
         # test gui
         # path = uniform_cost_search(city_map, current_position, goal_pos)
         path = find_path_level2(city_map, current_position, goal_pos, t)
@@ -580,12 +546,20 @@ while running:
             
             current_position = next_position
             total_steps += 1
+        else:
+            # Handle the case where no path is found
+            text = font.render("PATH NOT FOUND!", True, (255, 0, 0))  # Red color for visibility
+            screen.blit(text, (320, 80))
+            pygame.display.update()
+            time.sleep(2)  # Pause for 2 seconds to display the message
+            break
 
         # Draw path segments
         draw_path(screen, segments, RED, current_position)
+    
         
     elif level == 3:
-        draw_map_level3(screen, city_map,fuel_remaining, elapsed_time)
+        draw_map_level3(screen, city_map,fuel_remaining, elapsed_time, committed_time)
         # find path
         path = find_path_level3(n, m, committed_time, fuel_capacity, grid) 
         if path:
@@ -616,6 +590,13 @@ while running:
             
             current_position = next_position
             total_steps += 1
+        else:
+            # Handle the case where no path is found
+            text = font.render("PATH NOT FOUND!", True, (255, 0, 0))  # Red color for visibility
+            screen.blit(text, (320, 80))
+            pygame.display.update()
+            time.sleep(2)  # Pause for 2 seconds to display the message
+            break
 
         # Draw path segments
         draw_path(screen, segments, RED, current_position)
