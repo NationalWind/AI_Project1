@@ -24,6 +24,27 @@ def get_level_from_filename(filename):
         return None
 
 level = get_level_from_filename(input_file)
+#Function to choice algorithm
+def choose_algorithm():
+    print("Choose an algorithm:")
+    print("1. BFS")
+    print("2. DFS")
+    print("3. UCS")
+    print("4. GBFS")
+    print("5. A*")
+
+    choice = input("Enter the number of the algorithm you want to use: ").strip()
+
+    algorithms = {
+        '1': 'bfs',
+        '2': 'dfs',
+        '3': 'ucs',
+        '4': 'gbfs',
+        '5': 'a_star'
+    }
+
+    return algorithms.get(choice, None)
+
 
 # Function to read input file for Level 1
 def read_input_file_level1(file_path):
@@ -197,6 +218,11 @@ LIGHT_PINK = (255, 182, 193)
 
 # Read input file based on level
 if level == 1:
+  #  algorithm = choose_algorithm()
+  #  if algorithm is None:
+  #      print("Invalid choice")
+  #      pygame.quit()
+  #      sys.exit()
     n, m, city_map = read_input_file_level1(input_file)
 elif level == 2:
     n, m, t, city_map, toll_booths = read_input_file_level2(input_file)
