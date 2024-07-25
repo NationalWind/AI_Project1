@@ -12,7 +12,7 @@ import level4
 
 
 # Define level and input file
-input_file = 'Source/input2_level3.txt'  # Change the input file name here
+input_file = 'Source/input5_level3.txt'  # Change the input file name here
 
 # Function to get level from filename
 def get_level_from_filename(filename):
@@ -284,7 +284,7 @@ def draw_map_level2(screen, city_map, elapsed_time=None, cells_traversed=None, t
     text = font.render(f"Committed delivery time: {t}", True, BLACK)
     screen.blit(text, (250, 20))
     if elapsed_time is not None:
-        time_text = font.render(f"Elapsed Time: {elapsed_time} seconds", True, BLACK)
+        time_text = font.render(f"Elapsed Time: {elapsed_time} minutes", True, BLACK)
         screen.blit(time_text, (20, 20))
     if cells_traversed is not None:
         cells_text = font.render(f"Cells Traversed: {cells_traversed}", True, BLACK)
@@ -330,7 +330,7 @@ def draw_map_level3(screen, city_map, fuel_remaining=None, elapsed_time=None, t=
 
     # Display elapsed time
     if elapsed_time is not None:
-        time_text = font.render(f"Elapsed Time: {elapsed_time} seconds", True, BLACK)
+        time_text = font.render(f"Elapsed Time: {elapsed_time} minutes", True, BLACK)
         screen.blit(time_text, (20, 20))
 
     # Display remaining fuel
@@ -431,7 +431,7 @@ if level == 4:
         pygame.display.update()
         # Display elapsed time
         if elapsed_time is not None:
-            time_text = font.render(f"Elapsed Time: {elapsed_time} seconds", True, BLACK)
+            time_text = font.render(f"Elapsed Time: {elapsed_time} minutes", True, BLACK)
             screen.blit(time_text, (20, 20))
 
         # Display remaining fuel
@@ -577,7 +577,7 @@ while running:
             elapsed_time += 1 # Path adjustment
                 
             # Consume fuel
-            if next_position == current_position:
+            if next_position != current_position:
                 fuel_remaining -= 1
             
             # Check if out of fuel
