@@ -96,7 +96,7 @@ def expand(node, n, m, f, grid, cur_state, gantt, agent_idx, time_shift):
                 if rwt_f == 0:
                     if move == [0, 0]:
                         children.append(Node((i, j, 0, rt - 1, -1, f), dist, node))
-                    children.append(Node((u, v, 0, rt - 1, -1, f - 1), dist + 1, node))
+                    children.append(Node((u, v, 0 + guv, rt - 1, -1, f - 1), dist + 1, node))
                 elif rwt_f == -1:
                     if move == [0, 0]:
                         if wt_f - 1 == 0:
