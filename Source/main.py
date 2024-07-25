@@ -12,7 +12,7 @@ import level4
 
 
 # Define level and input file
-input_file = 'input2_level4.txt'  # Change the input file name here
+input_file = 'input1_level1.txt'  # Change the input file name here
 
 # Function to get level from filename
 def get_level_from_filename(filename):
@@ -233,6 +233,7 @@ BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 LIGHT_YELLOW = (255, 255, 224)
 DARK_BLUE = (0, 0, 139)
+DARK_GREEN = (1, 50, 32)
 LIGHT_BLUE = (173, 216, 230)
 LIGHT_GREEN = (144, 238, 144)
 LIGHT_PINK = (255, 182, 193)
@@ -414,11 +415,6 @@ if level == 4:
     prev_state = cur_state
     gantt = [[[] for _ in range(n_agents)] for _ in range(t + 1)]
 
-    GRID_COLOR = (200, 200, 200)
-    AGENT_BASE_COLOR = (0, 100, 20)
-    CELL_PADDING = 3
-    TEXT_OFFSET = 10
-
     def draw_text(text, position, font_size=36, color=BLACK):
         font = pygame.font.Font(None, font_size)
         text_surface = font.render(text, True, color)
@@ -473,12 +469,12 @@ if level == 4:
         pygame.display.update()
         # Display elapsed time
         if elapsed_time is not None:
-            time_text = font.render(f"Elapsed Time: {t - cur_state[0][3]} seconds", True, BLACK)
+            time_text = font.render(f"Elapsed Time: {elapsed_time} seconds", True, BLACK)
             screen.blit(time_text, (20, 20))
 
         # Display remaining fuel
         if fuel_remaining is not None:
-            fuel_text = font.render(f"Fuel Remaining: {cur_state[0][5]} liters", True, BLACK)
+            fuel_text = font.render(f"Fuel Remaining: {fuel_remaining} liters", True, BLACK)
             screen.blit(fuel_text, (20, 40))
 
     def draw_cur_states():
@@ -490,16 +486,16 @@ if level == 4:
             offset_y + cell_size // 2 + cur_state[i][0] * cell_size)
 
             # Draw the agent as a circle at the current position
+            if i == 0:
+                circle_color = RED
+            else:
+                circle_color = GREEN
             pygame.draw.circle(
                 screen,
-                (i * 20, i * 10 + 100, 20),
+                circle_color,
                 end_pos,
                 10,
             )
-            
-            # Draw the line representing the movement
-            pygame.draw.line(screen, RED, start_pos, end_pos, 3)
-
 
         pygame.display.update()
 
@@ -535,14 +531,16 @@ while running:
     if level == 1:
         draw_map_level1(screen, city_map, total_steps)
         # test gui
-        path = find_path_level1(n, m, grid, algorithm='bfs')
-        
+        path = find_path_level1(n, m, city_map, algorithm='dfs')
+
         if path:
             if current_position == goal_pos:
                 break
 
-            next_position = path[1]
-            time.sleep(1)  # Adjust delay for visualization
+            next_position = path[curr_id]
+            curr_id += 1 # Path adjustment
+
+            time.sleep(0.75)  # Adjust delay for visualization
 
             # Add segment to draw path
             segments.append((current_position, next_position))
@@ -564,7 +562,7 @@ while running:
                 break
 
             next_position = path[1]
-            time.sleep(1)  # Adjust delay for visualization
+            time.sleep(0.75)  # Adjust delay for visualization
 
             # Calculate time for the current cell
             cell_value = city_map[next_position[0]][next_position[1]]
@@ -595,7 +593,7 @@ while running:
             next_position = path[curr_id]
             curr_id += 1 # Path adjustment
 
-            time.sleep(1)  # Adjust delay for visualization
+            time.sleep(0.75)  # Adjust delay for visualization
 
             # Calculate time for the current cell and handle refueling
             cell_value = city_map[next_position[0]][next_position[1]]
@@ -653,7 +651,10 @@ while running:
                 if i == n_agents - 1:
                     draw_map_level4()
                     draw_cur_states()
-                    time.sleep(0.5)
+                    elapsed_time = t - cur_state[0][3]
+                    fuel_remaining = cur_state[0][5]
+                    total_steps += 1
+                    time.sleep(0.75)
                 i = (i + 1) % n_agents
             else:
                 print("OK")
@@ -662,15 +663,14 @@ while running:
     pygame.display.flip()
 
 # After the main loop ends
-if level != 4:
-    if current_position == goal_pos:
-        if level in [2, 3]:
-            print(f"Reached the goal in {elapsed_time} minutes.")
-        print(f"Cells Traversed (include Goal): {total_steps}")
-    else:
-        print("Path not found.")
+if current_position == goal_pos:
+    if level in [2, 3, 4]:
+        print(f"Reached the goal in {elapsed_time} minutes.")
+    print(f"Cells Traversed (include Goal): {total_steps}")
+else:
+    print("Path not found.")
 
-    time.sleep(5)
+time.sleep(5)
 
 pygame.quit()
 sys.exit()
