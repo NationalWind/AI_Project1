@@ -674,7 +674,8 @@ def main(input_file):
                         time.sleep(0.75)
                     i = (i + 1) % n_agents
                 else:
-                    print("Path found")
+                    print(f"Reached the goal in {elapsed_time} minutes.")
+                    print(f"Cells Traversed (include Goal): {total_steps}")
                     running = False
                     break
         pygame.display.flip()
@@ -682,7 +683,7 @@ def main(input_file):
     # After the main loop ends
     if level != 4:
         if current_position == goal_pos:
-            if level in [2, 3, 4]:
+            if level in [2, 3]:
                 print(f"Reached the goal in {elapsed_time} minutes.")
             print(f"Cells Traversed (include Goal): {total_steps}")
         else:
