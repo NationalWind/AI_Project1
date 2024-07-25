@@ -375,6 +375,7 @@ if level == 4:
     f = fuel_capacity
     cur_state = [(*start_goal[i][0], 0, t, -1, f) for i in range(n_agents)]
     gantt = [[[] for _ in range(n_agents)] for _ in range(t + 1)]
+    segments.append(start_pos)
 
     def draw_text(text, position, font_size=36, color=BLACK):
         font = pygame.font.Font(None, font_size)
@@ -447,15 +448,21 @@ if level == 4:
 
             # Draw the agent as a circle at the current position
             if i == 0:
-                circle_color = RED
+                segments.append(coord)
+                for j in range(len(segments)):
+                    if j > 0:
+                        start = segments[j-1]
+                        end = segments[j]
+                        start_pos = (offset_x + start[1] * cell_size + cell_size // 2, offset_y + start[0] * cell_size + cell_size // 2)
+                        end_pos = (offset_x + end[1] * cell_size + cell_size // 2, offset_y + end[0] * cell_size + cell_size // 2)
+                        pygame.draw.line(screen, RED, start_pos, end_pos, 3)
             else:
-                circle_color = GREEN
-            pygame.draw.circle(
-                screen,
-                circle_color,
-                end_xy,
-                5,
-            )
+                pygame.draw.circle(
+                    screen,
+                    GREEN,
+                    end_xy,
+                    5,
+                )
 
         pygame.display.update()
 
@@ -630,7 +637,7 @@ while running:
 
                 if i == n_agents - 1:
                     draw_map_level4()
-                    draw_cur_states(segments)
+                    draw_cur_states()
                     elapsed_time = t - cur_state[0][3]
                     fuel_remaining = cur_state[0][5]
                     total_steps += 1
