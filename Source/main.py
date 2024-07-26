@@ -15,19 +15,8 @@ import level4
 def main(input_file):
     # Define level and input file
     # input_file = 'Source/input5_level4.txt'  # Change the input file name here
-
-    # Function to get level from filename
-    def get_level_from_filename(filename):
-        match = re.search(r'_level(\d+)', filename)
-        if match:
-            level = int(match.group(1))
-            return level
-        else:
-            return None
-
-    level = get_level_from_filename(input_file)
-    #Function to choice algorithm
-    def choose_algorithm():
+    # Chose algorithm for level1
+    if 'level1' in input_file:
         print("Choose an algorithm:")
         print("1. BFS")
         print("2. DFS")
@@ -44,9 +33,19 @@ def main(input_file):
             '4': 'gbfs',
             '5': 'a_star'
         }
+        algorithm = algorithms.get(choice, None)
+        
 
-        return algorithms.get(choice, None)
+    # Function to get level from filename
+    def get_level_from_filename(filename):
+        match = re.search(r'_level(\d+)', filename)
+        if match:
+            level = int(match.group(1))
+            return level
+        else:
+            return None
 
+    level = get_level_from_filename(input_file)
 
     # Function to read input file for Level 1
     def read_input_file_level1(file_path):
@@ -221,11 +220,6 @@ def main(input_file):
 
     # Read input file based on level
     if level == 1:
-        algorithm = choose_algorithm()
-        if algorithm is None:
-            print("Invalid choice")
-            pygame.quit()
-            sys.exit()
         n, m, city_map = read_input_file_level1(input_file)
     elif level == 2:
         n, m, t, city_map, toll_booths = read_input_file_level2(input_file)
@@ -525,7 +519,7 @@ def main(input_file):
         screen.fill(WHITE)
         if level == 1:
             draw_map_level1(screen, city_map, total_steps)
-            path = find_path_level1( n, m, start_pos, goal_pos,city_map, algorithm=algorithm)
+            path = find_path_level1( n, m, start_pos, goal_pos,city_map, algorithm)
 
             if path:
                 if current_position == goal_pos:
