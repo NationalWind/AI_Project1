@@ -51,30 +51,29 @@ def main(input_file):
     # Function to read input file for Level 1
     def read_input_file_level1(file_path):
         with open(file_path, 'r') as f:
-            n, m = map(int, f.readline().strip().split())
+            n, m, t1, f1 = map(int, f.readline().strip().split())
             city_map = []
-            for _ in range(n):
-                line = f.readline().strip()
+            for i in range(n):
+                line = f.readline().strip().split()
                 row = []
-                for char in line:
+                for j, char in enumerate(line):
                     if char == '0':
                         row.append(0)
-                    elif char == '1':
+                    elif char == '-1':
                         row.append(-1)
                     elif char == 'S':
                         row.append('S')
                     elif char == 'G':
                         row.append('G')
-                    elif char.isdigit():
-                        row.append(int(char))
+                    else:
+                        row.append(0)
                 city_map.append(row)
-        
             return n, m, city_map
 
     # Function to read input file for Level 2
     def read_input_file_level2(file_path):
         with open(file_path, 'r') as f:
-            n, m, t = map(int, f.readline().strip().split())
+            n, m, t, f1 = map(int, f.readline().strip().split())
             city_map = []
             toll_booths = {}
             for i in range(n):
@@ -93,6 +92,8 @@ def main(input_file):
                         toll_time = int(char)
                         row.append(toll_time)
                         toll_booths[(i, j)] = toll_time
+                    else:
+                        row.append(0)
                 city_map.append(row)
             return n, m, t, city_map, toll_booths
 
@@ -248,7 +249,7 @@ def main(input_file):
                 goal_pos = (row, col)
 
     # Cell size
-    cell_size = 45
+    cell_size = 60
 
     # Offset to position the map in the center of the screen
     offset_x = (screen_size[0] - m * cell_size) // 2
@@ -516,13 +517,12 @@ def main(input_file):
             cur_state[i] = (*start_goal[i][0], 0, t, -1, f)
 
     screen.fill(WHITE)
-
+    time.sleep(0.5)
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
         screen.fill(WHITE)
-        
         if level == 1:
             draw_map_level1(screen, city_map, total_steps)
             path = find_path_level1( n, m, start_pos, goal_pos,city_map, algorithm='dfs')
@@ -633,7 +633,7 @@ def main(input_file):
                 break
 
             # Draw path segments
-            draw_path(screen, segments, RED, start_pos)
+            draw_path(screen, segments, RED, current_position)
 
         elif level == 4:
             # find curr states
@@ -647,7 +647,11 @@ def main(input_file):
                     if not path:
                         if i == 0:
                             print("Path not found.")
-                            time.sleep(1)
+                            # Handle the case where no path is found
+                            text = font.render("PATH NOT FOUND!", True, (255, 0, 0))  # Red color for visibility
+                            screen.blit(text, (320, 60))
+                            pygame.display.update()
+                            time.sleep(1.5)
                             running = False
                             break
                         else:
