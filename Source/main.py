@@ -5,7 +5,7 @@ import re
 import math
 import argparse
 from queue import PriorityQueue
-import random 
+import random
 from level1 import find_path_level1
 from level3 import find_path_level3
 from level2 import find_path_level2
@@ -15,19 +15,8 @@ import level4
 def main(input_file):
     # Define level and input file
     # input_file = 'Source/input5_level4.txt'  # Change the input file name here
-
-    # Function to get level from filename
-    def get_level_from_filename(filename):
-        match = re.search(r'_level(\d+)', filename)
-        if match:
-            level = int(match.group(1))
-            return level
-        else:
-            return None
-
-    level = get_level_from_filename(input_file)
-    #Function to choice algorithm
-    def choose_algorithm():
+    # Chose algorithm for level1
+    if "level1" in input_file:
         print("Choose an algorithm:")
         print("1. BFS")
         print("2. DFS")
@@ -37,34 +26,37 @@ def main(input_file):
 
         choice = input("Enter the number of the algorithm you want to use: ").strip()
 
-        algorithms = {
-            '1': 'bfs',
-            '2': 'dfs',
-            '3': 'ucs',
-            '4': 'gbfs',
-            '5': 'a_star'
-        }
+        algorithms = {"1": "bfs", "2": "dfs", "3": "ucs", "4": "gbfs", "5": "a_star"}
+        algorithm = algorithms.get(choice, None)
 
-        return algorithms.get(choice, None)
+    # Function to get level from filename
+    def get_level_from_filename(filename):
+        match = re.search(r"_level(\d+)", filename)
+        if match:
+            level = int(match.group(1))
+            return level
+        else:
+            return None
 
+    level = get_level_from_filename(input_file)
 
     # Function to read input file for Level 1
     def read_input_file_level1(file_path):
-        with open(file_path, 'r') as f:
+        with open(file_path, "r") as f:
             n, m, t1, f1 = map(int, f.readline().strip().split())
             city_map = []
             for i in range(n):
                 line = f.readline().strip().split()
                 row = []
                 for j, char in enumerate(line):
-                    if char == '0':
+                    if char == "0":
                         row.append(0)
-                    elif char == '-1':
+                    elif char == "-1":
                         row.append(-1)
-                    elif char == 'S':
-                        row.append('S')
-                    elif char == 'G':
-                        row.append('G')
+                    elif char == "S":
+                        row.append("S")
+                    elif char == "G":
+                        row.append("G")
                     else:
                         row.append(0)
                 city_map.append(row)
@@ -72,7 +64,7 @@ def main(input_file):
 
     # Function to read input file for Level 2
     def read_input_file_level2(file_path):
-        with open(file_path, 'r') as f:
+        with open(file_path, "r") as f:
             n, m, t, f1 = map(int, f.readline().strip().split())
             city_map = []
             toll_booths = {}
@@ -80,14 +72,14 @@ def main(input_file):
                 line = f.readline().strip().split()
                 row = []
                 for j, char in enumerate(line):
-                    if char == '0':
+                    if char == "0":
                         row.append(0)
-                    elif char == '-1':
+                    elif char == "-1":
                         row.append(-1)
-                    elif char == 'S':
-                        row.append('S')
-                    elif char == 'G':
-                        row.append('G')
+                    elif char == "S":
+                        row.append("S")
+                    elif char == "G":
+                        row.append("G")
                     elif char.isdigit():
                         toll_time = int(char)
                         row.append(toll_time)
@@ -98,26 +90,26 @@ def main(input_file):
             return n, m, t, city_map, toll_booths
 
     def read_input_file_level3(file_path):
-        with open(file_path, 'r') as f:
+        with open(file_path, "r") as f:
             n, m, committed_time, fuel_capacity = map(int, f.readline().strip().split())
             city_map = []
             grid = []
             gas_stations = {}  # Use a dictionary to store refuel times
             toll_booths = {}
-            
+
             for i in range(n):
                 line = f.readline().strip().split()
                 row = []
                 for j, char in enumerate(line):
-                    if char == '0':
+                    if char == "0":
                         row.append(0)
-                    elif char == '-1':
+                    elif char == "-1":
                         row.append(-1)
-                    elif char == 'S':
-                        row.append('S')
-                    elif char == 'G':
-                        row.append('G')
-                    elif char.startswith('F'):
+                    elif char == "S":
+                        row.append("S")
+                    elif char == "G":
+                        row.append("G")
+                    elif char.startswith("F"):
                         refuel_time = int(char[1:])  # Extract refuel time
                         row.append((i, j))  # Store position
                         gas_stations[(i, j)] = refuel_time
@@ -127,11 +119,11 @@ def main(input_file):
                         toll_booths[(i, j)] = toll_time
                 city_map.append(row)
                 grid.append(line)
-            
+
             return n, m, committed_time, fuel_capacity, city_map, gas_stations, toll_booths, grid
 
     def read_input_file_level4(file_path):
-        with open(file_path, 'r') as f:
+        with open(file_path, "r") as f:
             n, m, committed_time, fuel_capacity = map(int, f.readline().strip().split())
             city_map = []
             gas_stations = {}  # Use a dictionary to store refuel times
@@ -141,23 +133,23 @@ def main(input_file):
 
             grid = [[] for _ in range(n)]
 
-            start_pattern = re.compile(r'^S(\d+)$')
-            goal_pattern = re.compile(r'^G(\d+)$')
-            
+            start_pattern = re.compile(r"^S(\d+)$")
+            goal_pattern = re.compile(r"^G(\d+)$")
+
             for i in range(n):
                 line = f.readline().strip().split()
                 grid[i] = line
                 row = []
                 for j, char in enumerate(line):
-                    if char == '0':
+                    if char == "0":
                         row.append(0)
-                    elif char == '-1':
+                    elif char == "-1":
                         row.append(-1)
-                    elif char == 'S':
-                        row.append('S')
-                    elif char == 'G':
-                        row.append('G')
-                    elif char.startswith('F'):
+                    elif char == "S":
+                        row.append("S")
+                    elif char == "G":
+                        row.append("G")
+                    elif char.startswith("F"):
                         refuel_time = int(char[1:])  # Extract refuel time
                         row.append((i, j))  # Store position
                         gas_stations[(i, j)] = refuel_time
@@ -168,14 +160,14 @@ def main(input_file):
                     elif start_pattern.match(char):
                         vehicle_id = int(start_pattern.match(char).group(1))
                         row.append(char)
-                        vehicles[vehicle_id] = {'position': (i, j), 'destination': None}
+                        vehicles[vehicle_id] = {"position": (i, j), "destination": None}
                     elif goal_pattern.match(char):
                         goal_id = int(goal_pattern.match(char).group(1))
                         row.append(char)
                         goals[goal_id] = (i, j)
-                        
+
                 city_map.append(row)
-            
+
             start_goal = [[[-1, -1], [-1, -1]] for _ in range(10)]
 
             for i in range(n):
@@ -214,6 +206,7 @@ def main(input_file):
     YELLOW = (255, 255, 0)
     LIGHT_YELLOW = (255, 255, 224)
     DARK_BLUE = (0, 0, 139)
+    ORAN = (255, 200, 15)
     DARK_GREEN = (1, 50, 32)
     LIGHT_BLUE = (173, 216, 230)
     LIGHT_GREEN = (144, 238, 144)
@@ -231,11 +224,6 @@ def main(input_file):
 
     # Read input file based on level
     if level == 1:
-        algorithm = choose_algorithm()
-        if algorithm is None:
-            print("Invalid choice")
-            pygame.quit()
-            sys.exit()
         n, m, city_map = read_input_file_level1(input_file)
     elif level == 2:
         n, m, t, city_map, toll_booths = read_input_file_level2(input_file)
@@ -253,9 +241,9 @@ def main(input_file):
     goal_pos = None
     for row in range(n):
         for col in range(m):
-            if city_map[row][col] == 'S':
+            if city_map[row][col] == "S":
                 start_pos = (row, col)
-            elif city_map[row][col] == 'G':
+            elif city_map[row][col] == "G":
                 goal_pos = (row, col)
 
     # Cell size
@@ -268,25 +256,26 @@ def main(input_file):
     offset_y = (screen_size[1] - n * cell_size) // 2
 
     # Set font for drawing text
-    font = pygame.font.SysFont('Arial', 20)
+    font = pygame.font.SysFont("Arial", 20)
 
     # Draw the map function
     def draw_map_level1(screen, city_map, cells_traversed=None):
+        screen.fill(WHITE)
         for row in range(len(city_map)):
             for col in range(len(city_map[0])):
                 color = WHITE
                 if city_map[row][col] == -1:
                     color = DARK_BLUE
-                elif city_map[row][col] == 'S':
+                elif city_map[row][col] == "S":
                     color = LIGHT_GREEN
-                elif city_map[row][col] == 'G':
+                elif city_map[row][col] == "G":
                     color = LIGHT_PINK
 
                 pygame.draw.rect(screen, color, (offset_x + col * cell_size, offset_y + row * cell_size, cell_size, cell_size))
                 pygame.draw.rect(screen, BLACK, (offset_x + col * cell_size, offset_y + row * cell_size, cell_size, cell_size), 1)
 
                 # Draw text for special positions (S and G)
-                if city_map[row][col] == 'S' or city_map[row][col] == 'G':
+                if city_map[row][col] == "S" or city_map[row][col] == "G":
                     text_surface = font.render(city_map[row][col], True, BLACK)
                     text_rect = text_surface.get_rect(center=(offset_x + col * cell_size + cell_size // 2, offset_y + row * cell_size + cell_size // 2))
                     screen.blit(text_surface, text_rect)
@@ -295,31 +284,32 @@ def main(input_file):
             screen.blit(cells_text, (20, 50))
 
     def draw_map_level2(screen, city_map, elapsed_time=None, cells_traversed=None, t=None):
+        screen.fill(WHITE)
         for row in range(len(city_map)):
             for col in range(len(city_map[0])):
                 color = WHITE
                 if city_map[row][col] == -1:
                     color = DARK_BLUE
-                elif city_map[row][col] == 'S':
-                    color = LIGHT_GREEN  
-                elif city_map[row][col] == 'G':
+                elif city_map[row][col] == "S":
+                    color = LIGHT_GREEN
+                elif city_map[row][col] == "G":
                     color = LIGHT_PINK
                 elif isinstance(city_map[row][col], int) and city_map[row][col] > 0:
-                    color = LIGHT_BLUE  
+                    color = LIGHT_BLUE
 
-                pygame.draw.rect(screen, color, (offset_x + col*cell_size, offset_y + row*cell_size, cell_size, cell_size))
-                pygame.draw.rect(screen, BLACK, (offset_x + col*cell_size, offset_y + row*cell_size, cell_size, cell_size), 1)
+                pygame.draw.rect(screen, color, (offset_x + col * cell_size, offset_y + row * cell_size, cell_size, cell_size))
+                pygame.draw.rect(screen, BLACK, (offset_x + col * cell_size, offset_y + row * cell_size, cell_size, cell_size), 1)
 
                 # Draw text for special positions (S and G)
-                if city_map[row][col] == 'S' or city_map[row][col] == 'G':
+                if city_map[row][col] == "S" or city_map[row][col] == "G":
                     text_surface = font.render(city_map[row][col], True, BLACK)
-                    text_rect = text_surface.get_rect(center=(offset_x + col*cell_size + cell_size // 2, offset_y + row*cell_size + cell_size // 2))
+                    text_rect = text_surface.get_rect(center=(offset_x + col * cell_size + cell_size // 2, offset_y + row * cell_size + cell_size // 2))
                     screen.blit(text_surface, text_rect)
 
                 # Draw text for toll booths
                 elif isinstance(city_map[row][col], int) and city_map[row][col] > 0:
                     text_surface = font.render(str(city_map[row][col]), True, BLACK)
-                    text_rect = text_surface.get_rect(center=(offset_x + col*cell_size + cell_size // 2, offset_y + row*cell_size + cell_size // 2))
+                    text_rect = text_surface.get_rect(center=(offset_x + col * cell_size + cell_size // 2, offset_y + row * cell_size + cell_size // 2))
                     screen.blit(text_surface, text_rect)
         # Display elapsed time and cells traversed
         text = font.render(f"Committed delivery time: {t}", True, BLACK)
@@ -330,28 +320,29 @@ def main(input_file):
         if cells_traversed is not None:
             cells_text = font.render(f"Cells Traversed: {cells_traversed}", True, BLACK)
             screen.blit(cells_text, (20, 50))
-        
+
     def draw_map_level3(screen, city_map, fuel_remaining=None, elapsed_time=None, t=None):
+        screen.fill(WHITE)
         for row in range(len(city_map)):
             for col in range(len(city_map[0])):
                 color = WHITE
                 cell_value = city_map[row][col]
                 if cell_value == -1:
                     color = DARK_BLUE
-                elif cell_value == 'S':
+                elif cell_value == "S":
                     color = LIGHT_GREEN
-                elif cell_value == 'G':
+                elif cell_value == "G":
                     color = LIGHT_PINK
                 elif isinstance(cell_value, int) and cell_value > 0:
                     color = LIGHT_BLUE  # Toll booth
                 elif isinstance(city_map[row][col], tuple) and city_map[row][col] in gas_stations:
                     color = LIGHT_YELLOW  # Gas station
-                
+
                 pygame.draw.rect(screen, color, (offset_x + col * cell_size, offset_y + row * cell_size, cell_size, cell_size))
                 pygame.draw.rect(screen, BLACK, (offset_x + col * cell_size, offset_y + row * cell_size, cell_size, cell_size), 1)
 
                 # Draw text for special positions (S and G)
-                if cell_value == 'S' or cell_value == 'G':
+                if cell_value == "S" or cell_value == "G":
                     text_surface = font.render(cell_value, True, BLACK)
                     text_rect = text_surface.get_rect(center=(offset_x + col * cell_size + cell_size // 2, offset_y + row * cell_size + cell_size // 2))
                     screen.blit(text_surface, text_rect)
@@ -365,7 +356,7 @@ def main(input_file):
                     text_surface = font.render(f"F{gas_stations[city_map[row][col]]}", True, BLACK)
                     text_rect = text_surface.get_rect(center=(offset_x + col * cell_size + cell_size // 2, offset_y + row * cell_size + cell_size // 2))
                     screen.blit(text_surface, text_rect)
-                    
+
         text = font.render(f"Committed delivery time: {t}", True, BLACK)
         screen.blit(text, (250, 20))
 
@@ -378,13 +369,13 @@ def main(input_file):
         if fuel_remaining is not None:
             fuel_text = font.render(f"Fuel Remaining: {fuel_remaining} liters", True, BLACK)
             screen.blit(fuel_text, (20, 40))
-            
+
     # Draw the path function
     def draw_path(screen, segments, color, current_position):
         # Highlight current position
         if current_position:
             pygame.draw.rect(screen, YELLOW, (offset_x + current_position[1] * cell_size, offset_y + current_position[0] * cell_size, cell_size, cell_size), 3)
-            
+
         if not segments:
             return
 
@@ -394,7 +385,7 @@ def main(input_file):
             start_pos = (offset_x + start[1] * cell_size + cell_size // 2, offset_y + start[0] * cell_size + cell_size // 2)
             end_pos = (offset_x + end[1] * cell_size + cell_size // 2, offset_y + end[0] * cell_size + cell_size // 2)
             pygame.draw.line(screen, color, start_pos, end_pos, 3)
-
+        pygame.display.update()
 
     # Main loop
     running = True
@@ -425,6 +416,7 @@ def main(input_file):
             screen.blit(text_surface, text_rect)
 
         def draw_map_level4():
+            screen.fill(WHITE)
             for row in range(len(grid)):
                 for col in range(len(grid[0])):
                     color = WHITE
@@ -435,28 +427,28 @@ def main(input_file):
                     elif isinstance(cell_value_map, int) and cell_value_map > 0:
                         color = LIGHT_BLUE
                     elif isinstance(cell_value, str):
-                        if cell_value.startswith('S') or cell_value == 'S':
+                        if cell_value.startswith("S") or cell_value == "S":
                             if len(cell_value) == 1:
                                 color = LIGHT_GREEN
                             else:
                                 color = GREEN
-                        elif cell_value.startswith('G') or cell_value == 'G':
+                        elif cell_value.startswith("G") or cell_value == "G":
                             if len(cell_value) == 1:
                                 color = LIGHT_PINK
                             else:
                                 color = RED
-                        elif cell_value.startswith('F') or cell_value == 'F':
+                        elif cell_value.startswith("F") or cell_value == "F":
                             color = LIGHT_YELLOW
 
                     pygame.draw.rect(screen, color, (offset_x + col * cell_size, offset_y + row * cell_size, cell_size, cell_size))
                     pygame.draw.rect(screen, BLACK, (offset_x + col * cell_size, offset_y + row * cell_size, cell_size, cell_size), 1)
 
                     # Draw text for special positions (S, G, and F)
-                    if isinstance(cell_value, str) and (cell_value.startswith('G') or cell_value.startswith('S') or cell_value.startswith('F')):
+                    if isinstance(cell_value, str) and (cell_value.startswith("G") or cell_value.startswith("S") or cell_value.startswith("F")):
                         text_surface = font.render(cell_value, True, BLACK)
                         text_rect = text_surface.get_rect(center=(offset_x + col * cell_size + cell_size // 2, offset_y + row * cell_size + cell_size // 2))
                         screen.blit(text_surface, text_rect)
-                    if cell_value == 'S' or cell_value == 'G':
+                    if cell_value == "S" or cell_value == "G":
                         text_surface = font.render(cell_value, True, BLACK)
                         text_rect = text_surface.get_rect(center=(offset_x + col * cell_size + cell_size // 2, offset_y + row * cell_size + cell_size // 2))
                         screen.blit(text_surface, text_rect)
@@ -469,7 +461,7 @@ def main(input_file):
                         text_surface = font.render(f"F{gas_stations[city_map[row][col]]}", True, BLACK)
                         text_rect = text_surface.get_rect(center=(offset_x + col * cell_size + cell_size // 2, offset_y + row * cell_size + cell_size // 2))
                         screen.blit(text_surface, text_rect)
-            pygame.display.update()
+
             # Display elapsed time
             if elapsed_time is not None:
                 time_text = font.render(f"Elapsed Time: {elapsed_time} minutes", True, BLACK)
@@ -484,15 +476,15 @@ def main(input_file):
             for i in range(n_agents):
                 # Define previous and current positions
                 coord = (cur_state[i][0], cur_state[i][1])
-                end_xy = (offset_x + cell_size // 2 + cur_state[i][1] * cell_size, 
-                offset_y + cell_size // 2 + cur_state[i][0] * cell_size)
-
+                end_xy = (offset_x + cell_size // 2 + cur_state[i][1] * cell_size, offset_y + cell_size // 2 + cur_state[i][0] * cell_size)
+                if i == 0:
+                    pygame.draw.rect(screen, YELLOW, (offset_x + cur_state[i][1] * cell_size, offset_y + cur_state[i][0] * cell_size, cell_size, cell_size), 3)
                 # Draw the agent as a circle at the current position
                 if i == 0:
                     segments.append(coord)
                     for j in range(len(segments)):
                         if j > 0:
-                            start = segments[j-1]
+                            start = segments[j - 1]
                             end = segments[j]
                             start_pos = (offset_x + start[1] * cell_size + cell_size // 2, offset_y + start[0] * cell_size + cell_size // 2)
                             end_pos = (offset_x + end[1] * cell_size + cell_size // 2, offset_y + end[0] * cell_size + cell_size // 2)
@@ -501,13 +493,13 @@ def main(input_file):
                     pygame.draw.circle(
                         screen,
                         colors[i % 2 + 1],
+                        ORAN,
                         end_xy,
                         10,
                     )
 
             pygame.display.update()
 
-            
         def update_new_goal(i):
             start_goal[i][1][0] = random.randint(0, n - 1)
             start_goal[i][1][1] = random.randint(0, m - 1)
@@ -534,23 +526,23 @@ def main(input_file):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        screen.fill(WHITE)
+
         if level == 1:
             draw_map_level1(screen, city_map, total_steps)
-            path = find_path_level1( n, m, start_pos, goal_pos,city_map, algorithm=algorithm)
+            path = find_path_level1(n, m, start_pos, goal_pos, city_map, algorithm)
 
             if path:
                 if current_position == goal_pos:
                     break
 
                 next_position = path[curr_id]
-                curr_id += 1 # Path adjustment
+                curr_id += 1  # Path adjustment
 
                 time.sleep(0.75)  # Adjust delay for visualization
 
                 # Add segment to draw path
                 segments.append((current_position, next_position))
-                
+
                 current_position = next_position
                 total_steps += 1
             else:
@@ -563,13 +555,13 @@ def main(input_file):
 
             # Draw path segments
             draw_path(screen, segments, RED, current_position)
-            
+
         elif level == 2:
             draw_map_level2(screen, city_map, elapsed_time, total_steps, t)
             # test gui
             # path = uniform_cost_search(city_map, current_position, goal_pos)
             path = find_path_level2(city_map, current_position, goal_pos, t)
-            
+
             if path:
                 if current_position == goal_pos:
                     break
@@ -588,7 +580,7 @@ def main(input_file):
 
                 # Add segment to draw path
                 segments.append((current_position, next_position))
-                
+
                 current_position = next_position
                 total_steps += 1
             else:
@@ -601,18 +593,17 @@ def main(input_file):
 
             # Draw path segments
             draw_path(screen, segments, RED, current_position)
-        
-            
+
         elif level == 3:
-            draw_map_level3(screen, city_map,fuel_remaining, elapsed_time, committed_time)
+            draw_map_level3(screen, city_map, fuel_remaining, elapsed_time, committed_time)
             # find path
-            path = find_path_level3(n, m, committed_time, fuel_capacity, grid) 
+            path = find_path_level3(n, m, committed_time, fuel_capacity, grid)
             if path:
                 if current_position == goal_pos:
                     break
 
                 next_position = path[curr_id]
-                curr_id += 1 # Path adjustment
+                curr_id += 1  # Path adjustment
 
                 time.sleep(0.75)  # Adjust delay for visualization
 
@@ -620,13 +611,13 @@ def main(input_file):
                 cell_value = city_map[next_position[0]][next_position[1]]
                 if grid[next_position[0]][next_position[1]][0] == "F":
                     fuel_remaining = fuel_capacity
-                elapsed_time += 1 # Path adjustment
-                    
+                elapsed_time += 1  # Path adjustment
+
                 # Consume fuel
                 if next_position != current_position:
                     fuel_remaining -= 1
                     total_steps += 1
-                
+
                 # Check if out of fuel
                 if fuel_remaining < 0:
                     print("Ran out of fuel!")
@@ -634,7 +625,7 @@ def main(input_file):
 
                 # Add segment to draw path
                 segments.append((current_position, next_position))
-                
+
                 current_position = next_position
             else:
                 # Handle the case where no path is found
@@ -695,7 +686,6 @@ def main(input_file):
                     print(f"Cells Traversed (include Goal): {total_steps}")
                     running = False
                     break
-        pygame.display.flip()
 
     # After the main loop ends
     if level != 4:
@@ -711,8 +701,9 @@ def main(input_file):
     pygame.quit()
     sys.exit()
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process some input file.")
-    parser.add_argument('input_file', type=str, help='The input file to be processed')
+    parser.add_argument("input_file", type=str, help="The input file to be processed")
     args = parser.parse_args()
     main(args.input_file)
