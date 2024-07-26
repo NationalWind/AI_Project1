@@ -1,5 +1,6 @@
 import heapq
 
+
 class Node:
     def __init__(self, state, path_cost, parent):
         self.state = state
@@ -9,8 +10,10 @@ class Node:
     def __lt__(self, other):
         return self.state[3] > other.state[3]
 
+
 def fn(node, goal_state):
     return node.path_cost + abs(goal_state[0] - node.state[0]) + abs(goal_state[1] - node.state[1]), node
+
 
 def A_star(n, m, f, start_state, goal_state, grid):
     node = Node(start_state, 0, None)
@@ -28,6 +31,7 @@ def A_star(n, m, f, start_state, goal_state, grid):
             if reached.get(s) is None or child.path_cost < reached[s].path_cost:
                 reached[s] = child
                 heapq.heappush(frontier, fn(child, goal_state))
+
 
 def expand(node, n, m, f, grid):
     children = []
@@ -60,7 +64,7 @@ def expand(node, n, m, f, grid):
                 if rwt_f == 0:
                     if move == [0, 0]:
                         children.append(Node((i, j, 0, rt - 1, -1, f), dist, node))
-                    children.append(Node((u, v, 0, rt - 1, -1, f - 1), dist + 1, node))
+                    children.append(Node((u, v, 0 + guv, rt - 1, -1, f - 1), dist + 1, node))
                 elif rwt_f == -1:
                     if move == [0, 0]:
                         if wt_f - 1 == 0:
@@ -96,6 +100,7 @@ def expand(node, n, m, f, grid):
 
     return children
 
+
 def trace(node):
     depth = 0
     path = []
@@ -104,6 +109,7 @@ def trace(node):
         path.append(node.state)
         node = node.parent
     return path[::-1], depth - 1
+
 
 def find_path_level3(n, m, t, f, grid):
     for i in range(n):
@@ -123,6 +129,7 @@ def find_path_level3(n, m, t, f, grid):
     path = trace(node)[0]
     filtered_path = [(coord[0], coord[1]) for coord in path]
     return filtered_path
+
 
 # with open("input1_level3.txt") as inp:
 #     n, m, t, f = map(int, (inp.readline().split()))

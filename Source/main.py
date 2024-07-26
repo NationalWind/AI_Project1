@@ -211,16 +211,8 @@ def main(input_file):
     LIGHT_BLUE = (173, 216, 230)
     LIGHT_GREEN = (144, 238, 144)
     LIGHT_PINK = (255, 182, 193)
-    
-    colors = [
-    (1, 50, 32),      # DARK_GREEN
-    (255, 165, 0),    # ORANGE
-    (128, 0, 128),    # PURPLE
-    (0, 255, 255),    # CYAN
-    (255, 0, 255),    # MAGENTA
-    (139, 69, 19)     # BROWN
-    ]
 
+    colors = [(1, 50, 32), (255, 165, 0), (128, 0, 128), (0, 255, 255), (255, 0, 255), (139, 69, 19)]  # DARK_GREEN  # ORANGE  # PURPLE  # CYAN  # MAGENTA  # BROWN
 
     # Read input file based on level
     if level == 1:
@@ -248,7 +240,7 @@ def main(input_file):
 
     # Cell size
     cell_size = 60
-    if (n > 10):
+    if n > 10:
         cell_size = 32
 
     # Offset to position the map in the center of the screen
@@ -492,7 +484,7 @@ def main(input_file):
                 else:
                     pygame.draw.circle(
                         screen,
-                        colors[i % 2 + 1],
+                        ORAN,
                         end_xy,
                         10,
                     )
@@ -549,7 +541,7 @@ def main(input_file):
                 text = font.render("PATH NOT FOUND!", True, (255, 0, 0))  # Red color for visibility
                 screen.blit(text, (320, 80))
                 pygame.display.update()
-                time.sleep(1) 
+                time.sleep(1)
                 break
 
             # Draw path segments
@@ -659,17 +651,16 @@ def main(input_file):
                         else:
                             for tp in range(0, cur_state[i][3]):
                                 gantt[tp][i] = cur_state[i]
-                            i = (i + 1) % n_agents
-                            continue
-                    for state in path:
-                        gantt[state[3]][i] = state
-                    path.pop()
-                    cur_state[i] = path[-1]
-                    path.pop()
-                    if i > 0:
-                        # it will randomly generate a valid destination on the map (i.e., not on obstacles, or other vehicles)
-                        if (cur_state[i][0], cur_state[i][1]) == tuple(start_goal[i][1]):
-                            start_goal[i][1] = [-1, -1]
+                    else:
+                        for state in path:
+                            gantt[state[3]][i] = state
+                        path.pop()
+                        cur_state[i] = path[-1]
+                        path.pop()
+                        if i > 0:
+                            # it will randomly generate a valid destination on the map (i.e., not on obstacles, or other vehicles)
+                            if (cur_state[i][0], cur_state[i][1]) == tuple(start_goal[i][1]):
+                                start_goal[i][1] = [-1, -1]
 
                     if i == n_agents - 1:
                         # draw_map_level4()
