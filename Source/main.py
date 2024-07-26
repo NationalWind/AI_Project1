@@ -525,7 +525,7 @@ def main(input_file):
         screen.fill(WHITE)
         if level == 1:
             draw_map_level1(screen, city_map, total_steps)
-            path = find_path_level1( n, m, start_pos, goal_pos,city_map, algorithm='dfs')
+            path = find_path_level1( n, m, start_pos, goal_pos,city_map, algorithm=algorithm)
 
             if path:
                 if current_position == goal_pos:
