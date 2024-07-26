@@ -219,7 +219,7 @@ def main(input_file):
     (0, 255, 255),    # CYAN
     (255, 0, 255),    # MAGENTA
     (139, 69, 19)     # BROWN
-]
+    ]
 
 
     # Read input file based on level
@@ -493,7 +493,6 @@ def main(input_file):
                     pygame.draw.circle(
                         screen,
                         colors[i % 2 + 1],
-                        ORAN,
                         end_xy,
                         10,
                     )
