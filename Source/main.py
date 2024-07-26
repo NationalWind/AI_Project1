@@ -231,8 +231,10 @@ def main(input_file):
     # Find start and goal positions
     start_pos = None
     goal_pos = None
+
     for row in range(n):
         for col in range(m):
+
             if city_map[row][col] == "S":
                 start_pos = (row, col)
             elif city_map[row][col] == "G":
@@ -399,6 +401,9 @@ def main(input_file):
         f = fuel_capacity
         cur_state = [(*start_goal[i][0], 0, t, -1, f) for i in range(n_agents)]
         gantt = [[[] for _ in range(n_agents)] for _ in range(t + 1)]
+        for i_agent in range(n_agents):
+            gantt[t][i_agent] = cur_state[i_agent]
+
         segments.append(start_pos)
 
         def draw_text(text, position, font_size=36, color=BLACK):
@@ -484,7 +489,7 @@ def main(input_file):
                 else:
                     pygame.draw.circle(
                         screen,
-                        ORAN,
+                        colors[i % 2 + 1],
                         end_xy,
                         10,
                     )
@@ -637,10 +642,13 @@ def main(input_file):
                 if [cur_state[0][0], cur_state[0][1]] != start_goal[0][1] or i > 0:
                     if start_goal[i][1] == [-1, -1]:
                         update_new_goal(i)
+
                     node = level4.A_star(n, m, f, cur_state[i], (*start_goal[i][1], 0, 0, -1, 0), grid, cur_state, gantt, i, max(0, cur_state[i][3] - cur_state[0][3] - 1))
                     path = level4.trace(node)[0]
+
                     if not path:
-                        if i == 0:
+                        # breakpoint()
+                        if i == 0 or any(s_idx < i and state and (state[0], state[1]) == (cur_state[i][0], cur_state[i][1]) for s_idx, state in enumerate(cur_state)):
                             print("Path not found.")
                             # Handle the case where no path is found
                             text = font.render("PATH NOT FOUND!", True, (255, 0, 0))  # Red color for visibility
@@ -650,7 +658,7 @@ def main(input_file):
                             running = False
                             break
                         else:
-                            for tp in range(0, cur_state[i][3]):
+                            for tp in range(0, cur_state[0][3] + 1):
                                 gantt[tp][i] = cur_state[i]
                     else:
                         for state in path:

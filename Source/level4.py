@@ -51,7 +51,13 @@ def expand(node, n, m, f, grid, cur_state, gantt, agent_idx, time_shift):
         # duplicate when stopped
         u = i + move[0]
         v = j + move[1]
-
+        # if rt - 1 - time_shift >= 0 and any(
+        #     state
+        #     and (s_idx < agent_idx or (s_idx != agent_idx and gantt[rt - time_shift][s_idx] and (gantt[rt - time_shift][s_idx][0], gantt[rt - time_shift][s_idx][1]) == (u, v)))
+        #     and (state[0], state[1]) == (u, v)
+        #     for s_idx, state in enumerate(gantt[rt - 1 - time_shift])
+        # ):
+        #     breakpoint()
         if (
             u < 0
             or u >= n
@@ -59,7 +65,15 @@ def expand(node, n, m, f, grid, cur_state, gantt, agent_idx, time_shift):
             or v >= m
             or grid[u][v] == "-1"
             # or (any(state and s_idx != agent_idx and (state[0], state[1]) == (u, v) for s_idx, state in enumerate(gantt[rt])))
-            or (rt - 1 - time_shift >= 0 and any(state and (s_idx < agent_idx or 0) and (state[0], state[1]) == (u, v) for s_idx, state in enumerate(gantt[rt - 1 - time_shift])))
+            or (
+                rt - 1 - time_shift >= 0
+                and any(
+                    state
+                    and (s_idx < agent_idx or (s_idx != agent_idx and gantt[rt - time_shift][s_idx] and (gantt[rt - time_shift][s_idx][0], gantt[rt - time_shift][s_idx][1]) == (u, v)))
+                    and (state[0], state[1]) == (u, v)
+                    for s_idx, state in enumerate(gantt[rt - 1 - time_shift])
+                )
+            )
             or (
                 rt - 1 - time_shift >= 0
                 and any(
