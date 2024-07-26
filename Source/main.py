@@ -601,7 +601,8 @@ def main(input_file):
                 # Calculate time for the current cell and handle refueling
                 cell_value = city_map[next_position[0]][next_position[1]]
                 if grid[next_position[0]][next_position[1]][0] == "F":
-                    fuel_remaining = fuel_capacity
+                    if path[curr_id + 1] == path[curr_id]:
+                        fuel_remaining = fuel_capacity
                 elapsed_time += 1  # Path adjustment
 
                 # Consume fuel
