@@ -218,6 +218,16 @@ def main(input_file):
     LIGHT_BLUE = (173, 216, 230)
     LIGHT_GREEN = (144, 238, 144)
     LIGHT_PINK = (255, 182, 193)
+    
+    colors = [
+    (1, 50, 32),      # DARK_GREEN
+    (255, 165, 0),    # ORANGE
+    (128, 0, 128),    # PURPLE
+    (0, 255, 255),    # CYAN
+    (255, 0, 255),    # MAGENTA
+    (139, 69, 19)     # BROWN
+]
+
 
     # Read input file based on level
     if level == 1:
@@ -250,6 +260,8 @@ def main(input_file):
 
     # Cell size
     cell_size = 60
+    if (n > 10):
+        cell_size = 32
 
     # Offset to position the map in the center of the screen
     offset_x = (screen_size[0] - m * cell_size) // 2
@@ -488,9 +500,9 @@ def main(input_file):
                 else:
                     pygame.draw.circle(
                         screen,
-                        GREEN,
+                        colors[i % 2 + 1],
                         end_xy,
-                        5,
+                        10,
                     )
 
             pygame.display.update()
@@ -546,7 +558,7 @@ def main(input_file):
                 text = font.render("PATH NOT FOUND!", True, (255, 0, 0))  # Red color for visibility
                 screen.blit(text, (320, 80))
                 pygame.display.update()
-                time.sleep(2)  # Pause for 2 seconds to display the message
+                time.sleep(1) 
                 break
 
             # Draw path segments
@@ -584,7 +596,7 @@ def main(input_file):
                 text = font.render("PATH NOT FOUND!", True, (255, 0, 0))  # Red color for visibility
                 screen.blit(text, (320, 80))
                 pygame.display.update()
-                time.sleep(2)  # Pause for 2 seconds to display the message
+                time.sleep(1)  # Pause for 2 seconds to display the message
                 break
 
             # Draw path segments
@@ -629,7 +641,7 @@ def main(input_file):
                 text = font.render("PATH NOT FOUND!", True, (255, 0, 0))  # Red color for visibility
                 screen.blit(text, (320, 80))
                 pygame.display.update()
-                time.sleep(2)  # Pause for 2 seconds to display the message
+                time.sleep(1)
                 break
 
             # Draw path segments
@@ -675,9 +687,10 @@ def main(input_file):
                         elapsed_time = t - cur_state[0][3]
                         fuel_remaining = cur_state[0][5]
                         total_steps += 1
-                        time.sleep(0.75)
+                        time.sleep(1.5)
                     i = (i + 1) % n_agents
                 else:
+                    time.sleep(1)
                     print(f"Reached the goal in {elapsed_time} minutes.")
                     print(f"Cells Traversed (include Goal): {total_steps}")
                     running = False
@@ -693,7 +706,7 @@ def main(input_file):
         else:
             print("Path not found.")
 
-    time.sleep(5)
+    time.sleep(2)
 
     pygame.quit()
     sys.exit()
